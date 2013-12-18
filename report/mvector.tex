@@ -1,0 +1,35 @@
+\begin{Verbatim}[tabsize=2,commandchars=\\\{\},numbers=left,firstnumber=1,stepnumber=1]
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{ifndef MVECTOR\PYZus{}HPP\PYZus{}}
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{define MVECTOR\PYZus{}HPP\PYZus{}}
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{include\PYZlt{}vector\PYZgt{}}
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{include\PYZlt{}iostream\PYZgt{}}
+\PY{k}{using} \PY{k}{namespace} \PY{n}{std}\PY{p}{;}
+
+\PY{k}{class} \PY{n+nc}{MVector} \PY{p}{\PYZob{}}
+	\PY{n}{vector}\PY{o}{\PYZlt{}}\PY{k+kt}{double}\PY{o}{\PYZgt{}} \PY{n}{v}\PY{p}{;}
+\PY{n+nl}{public:}
+	\PY{c+c1}{// Constructors: allow various constructors with different arguments}
+	\PY{k}{explicit} \PY{n+nf}{MVector}\PY{p}{(}\PY{p}{)}\PY{p}{\PYZob{}}\PY{p}{\PYZcb{}}
+	\PY{k}{explicit} \PY{n+nf}{MVector}\PY{p}{(}\PY{k+kt}{int} \PY{n}{n}\PY{p}{)}\PY{o}{:}\PY{n}{v}\PY{p}{(}\PY{n}{n}\PY{p}{)}\PY{p}{\PYZob{}}\PY{p}{\PYZcb{}}
+	\PY{k}{explicit} \PY{n+nf}{MVector}\PY{p}{(}\PY{k+kt}{int} \PY{n}{n}\PY{p}{,} \PY{k+kt}{double} \PY{n}{x}\PY{p}{)}\PY{o}{:}\PY{n}{v}\PY{p}{(}\PY{n}{n}\PY{p}{,}\PY{n}{x}\PY{p}{)}\PY{p}{\PYZob{}}\PY{p}{\PYZcb{}}
+	\PY{c+c1}{// Destructor}
+	\PY{o}{\PYZti{}}\PY{n}{MVector}\PY{p}{(}\PY{p}{)} \PY{p}{\PYZob{}}\PY{p}{\PYZcb{}}	\PY{c+c1}{// Destructor does nothing here}
+
+	\PY{n}{MVector}\PY{o}{\PYZam{}} \PY{k}{operator}\PY{o}{=}\PY{p}{(}\PY{k}{const} \PY{n}{MVector}\PY{o}{\PYZam{}} \PY{n}{X}\PY{p}{)}\PY{p}{;}
+	\PY{k+kt}{double}\PY{o}{\PYZam{}} \PY{k}{operator}\PY{p}{[}\PY{p}{]}\PY{p}{(}\PY{k+kt}{int} \PY{n}{index}\PY{p}{)}\PY{p}{;}
+	\PY{k+kt}{double} \PY{k}{operator}\PY{p}{[}\PY{p}{]}\PY{p}{(}\PY{k+kt}{int} \PY{n}{index}\PY{p}{)} \PY{k}{const}\PY{p}{;}
+	\PY{k+kt}{int} \PY{n}{size}\PY{p}{(}\PY{p}{)} \PY{k}{const}\PY{p}{;}
+	\PY{n}{vector}\PY{o}{\PYZlt{}}\PY{k+kt}{double}\PY{o}{\PYZgt{}} \PY{n}{getVector}\PY{p}{(}\PY{p}{)}\PY{p}{;}
+	\PY{k+kt}{void} \PY{n+nf}{push\PYZus{}back}\PY{p}{(}\PY{k+kt}{double} \PY{n}{x}\PY{p}{)}\PY{p}{;}
+\PY{p}{\PYZcb{}}\PY{p}{;}
+
+\PY{c+c1}{// Function types for operator overloading}
+\PY{n}{MVector} \PY{k}{operator}\PY{o}{*}\PY{p}{(}\PY{k}{const} \PY{k+kt}{double}\PY{o}{\PYZam{}} \PY{n}{lhs}\PY{p}{,} \PY{k}{const} \PY{n}{MVector}\PY{o}{\PYZam{}} \PY{n}{rhs}\PY{p}{)}\PY{p}{;}
+\PY{n}{MVector} \PY{k}{operator}\PY{o}{/}\PY{p}{(}\PY{k}{const} \PY{n}{MVector}\PY{o}{\PYZam{}} \PY{n}{lhs}\PY{p}{,} \PY{k}{const} \PY{k+kt}{double}\PY{o}{\PYZam{}} \PY{n}{rhs}\PY{p}{)}\PY{p}{;}
+\PY{n}{MVector} \PY{k}{operator}\PY{o}{+}\PY{p}{(}\PY{k}{const} \PY{n}{MVector}\PY{o}{\PYZam{}} \PY{n}{lhs}\PY{p}{,} \PY{k}{const} \PY{n}{MVector}\PY{o}{\PYZam{}} \PY{n}{rhs}\PY{p}{)}\PY{p}{;}
+\PY{n}{MVector} \PY{k}{operator}\PY{o}{\PYZhy{}}\PY{p}{(}\PY{k}{const} \PY{n}{MVector}\PY{o}{\PYZam{}} \PY{n}{lhs}\PY{p}{,} \PY{k}{const} \PY{n}{MVector}\PY{o}{\PYZam{}} \PY{n}{rhs}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{double} \PY{k}{operator}\PY{o}{*}\PY{p}{(}\PY{k}{const} \PY{n}{MVector}\PY{o}{\PYZam{}} \PY{n}{lhs}\PY{p}{,} \PY{k}{const} \PY{n}{MVector}\PY{o}{\PYZam{}} \PY{n}{rhs}\PY{p}{)}\PY{p}{;}
+\PY{n}{ostream}\PY{o}{\PYZam{}} \PY{k}{operator}\PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}}\PY{p}{(}\PY{n}{ostream}\PY{o}{\PYZam{}} \PY{n}{os}\PY{p}{,} \PY{k}{const} \PY{n}{MVector}\PY{o}{\PYZam{}} \PY{n}{v}\PY{p}{)}\PY{p}{;}
+
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{endif }\PY{c+cm}{/* MVECTOR\PYZus{}HPP\PYZus{} */}
+\end{Verbatim}

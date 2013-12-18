@@ -1,0 +1,26 @@
+\begin{Verbatim}[tabsize=2,commandchars=\\\{\},numbers=left,firstnumber=1,stepnumber=1]
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{ifndef SOLVERS\PYZus{}HPP\PYZus{}}
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{define SOLVERS\PYZus{}HPP\PYZus{}}
+
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{include \PYZdq{}MFunction.hpp\PYZdq{}}
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{include \PYZlt{}fstream\PYZgt{}}
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{include \PYZlt{}iostream\PYZgt{}}
+
+\PY{k}{class} \PY{n+nc}{ivp\PYZus{}solvers} \PY{p}{\PYZob{}}
+	\PY{k+kt}{int} \PY{n}{steps}\PY{p}{,}\PY{n}{j}\PY{p}{;} \PY{c+c1}{// variables all functions in the class need}
+	\PY{k+kt}{double} \PY{n}{a}\PY{p}{,}\PY{n}{b}\PY{p}{;}
+	\PY{n}{MVector} \PY{n}{out}\PY{p}{;}
+	\PY{n}{ofstream} \PY{n}{output}\PY{p}{;}
+\PY{n+nl}{public:}
+	\PY{n}{ivp\PYZus{}solvers} \PY{p}{(}\PY{k+kt}{int} \PY{n}{step}\PY{p}{,} \PY{k+kt}{double} \PY{n}{m}\PY{p}{,} \PY{k+kt}{double} \PY{n}{n}\PY{p}{)}\PY{p}{\PYZob{}}
+		\PY{n}{steps} \PY{o}{=} \PY{n}{step}\PY{p}{;} \PY{c+c1}{// number of steps}
+		\PY{n}{a} \PY{o}{=} \PY{n}{m}\PY{p}{;} \PY{c+c1}{// lower end of interval}
+		\PY{n}{b} \PY{o}{=} \PY{n}{n}\PY{p}{;} \PY{c+c1}{// upper end of interval}
+	\PY{p}{\PYZcb{}}
+	\PY{n}{MVector} \PY{n}{euler}\PY{p}{(}\PY{n}{MVector} \PY{o}{\PYZam{}}\PY{n}{y}\PY{p}{,} \PY{n}{MFunction} \PY{o}{\PYZam{}}\PY{n}{f}\PY{p}{,} \PY{k+kt}{int} \PY{n}{j}\PY{p}{)}\PY{p}{;}
+	\PY{n}{MVector} \PY{n+nf}{midpoint}\PY{p}{(}\PY{n}{MVector} \PY{o}{\PYZam{}}\PY{n}{y}\PY{p}{,} \PY{n}{MFunction} \PY{o}{\PYZam{}}\PY{n}{f}\PY{p}{,} \PY{k+kt}{int} \PY{n}{j}\PY{p}{)}\PY{p}{;}
+	\PY{n}{MVector} \PY{n+nf}{runge}\PY{p}{(}\PY{n}{MVector} \PY{o}{\PYZam{}}\PY{n}{y}\PY{p}{,} \PY{n}{MFunction} \PY{o}{\PYZam{}}\PY{n}{f}\PY{p}{,} \PY{k+kt}{int} \PY{n}{j}\PY{p}{)}\PY{p}{;}
+\PY{p}{\PYZcb{}}\PY{p}{;}
+
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{endif }\PY{c+cm}{/* SOLVERS\PYZus{}HPP\PYZus{} */}
+\end{Verbatim}

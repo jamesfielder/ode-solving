@@ -1,0 +1,35 @@
+\begin{Verbatim}[tabsize=2,commandchars=\\\{\},numbers=left,firstnumber=1,stepnumber=1]
+\PY{n+nv}{CXX}\PY{o}{=}g++
+\PY{n+nv}{CXXFLAGS}\PY{o}{+=}\PYZhy{}O2 \PYZhy{}std\PY{o}{=}c++11 \PYZhy{}static
+
+\PY{n+nf}{all}\PY{o}{:} \PY{l+m}{main}
+
+\PY{n+nf}{clean}\PY{o}{:}
+	rm \PYZhy{}f main *.o
+
+\PY{n+nf}{MVector.o}\PY{o}{:}
+	\PY{k}{\PYZdl{}(}CXX\PY{k}{)} \PY{n+nv}{\PYZdl{}\PYZca{}} \PY{k}{\PYZdl{}(}CXXFLAGS\PY{k}{)} MVector.cpp \PYZhy{}c
+
+\PY{n+nf}{solvers.o}\PY{o}{:}
+	\PY{k}{\PYZdl{}(}CXX\PY{k}{)} \PY{n+nv}{\PYZdl{}\PYZca{}} \PY{k}{\PYZdl{}(}CXXFLAGS\PY{k}{)} solvers.cpp \PYZhy{}c
+
+\PY{n+nf}{odes.o}\PY{o}{:}
+	\PY{k}{\PYZdl{}(}CXX\PY{k}{)} \PY{n+nv}{\PYZdl{}\PYZca{}} \PY{k}{\PYZdl{}(}CXXFLAGS\PY{k}{)} odes.cpp \PYZhy{}c
+
+\PY{n+nf}{main.o}\PY{o}{:}
+	\PY{k}{\PYZdl{}(}CXX\PY{k}{)} \PY{n+nv}{\PYZdl{}\PYZca{}} \PY{k}{\PYZdl{}(}CXXFLAGS\PY{k}{)} main.cpp \PYZhy{}c
+
+\PY{n+nf}{main}\PY{o}{:} \PY{l+m}{MVector.o solvers.o odes.o main.o}
+	\PY{k}{\PYZdl{}(}CXX\PY{k}{)} \PY{n+nv}{\PYZdl{}\PYZca{}} \PY{k}{\PYZdl{}(}CXXFLAGS\PY{k}{)} \PYZhy{}o \PY{n+nv}{\PYZdl{}@}
+
+\PY{n+nf}{pygments}\PY{o}{:}
+	pygmentize \PYZhy{}O \PY{n+nv}{linenos}\PY{o}{=}ON \PYZhy{}f latex main.cpp \PYZgt{} ../main.cpp.tex
+	pygmentize \PYZhy{}O \PY{n+nv}{linenos}\PY{o}{=}ON \PYZhy{}f latex solvers.hpp \PYZgt{} ../solvers.hpp.tex
+	pygmentize \PYZhy{}O \PY{n+nv}{linenos}\PY{o}{=}ON \PYZhy{}f latex MVector.hpp \PYZgt{} ../mvector.tex
+	pygmentize \PYZhy{}O \PY{n+nv}{linenos}\PY{o}{=}ON \PYZhy{}f latex MFunction.hpp \PYZgt{} ../MFunction.tex
+	pygmentize \PYZhy{}O \PY{n+nv}{linenos}\PY{o}{=}ON \PYZhy{}f latex MVector.cpp \PYZgt{} ../MVector.cpp.tex
+	pygmentize \PYZhy{}O \PY{n+nv}{linenos}\PY{o}{=}ON \PYZhy{}f latex Makefile \PYZgt{} ../makefile.tex
+	pygmentize \PYZhy{}O \PY{n+nv}{linenos}\PY{o}{=}ON \PYZhy{}f latex solvers.cpp \PYZgt{} ../solvers.cpp.tex
+	pygmentize \PYZhy{}O \PY{n+nv}{linenos}\PY{o}{=}ON \PYZhy{}f latex odes.cpp \PYZgt{} ../odes.cpp.tex
+	pygmentize \PYZhy{}O \PY{n+nv}{linenos}\PY{o}{=}ON \PYZhy{}f latex odes.hpp \PYZgt{} ../odes.hpp.tex
+\end{Verbatim}

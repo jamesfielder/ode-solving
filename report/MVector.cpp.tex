@@ -1,0 +1,130 @@
+\begin{Verbatim}[tabsize=2,commandchars=\\\{\},numbers=left,firstnumber=1,stepnumber=1]
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{include\PYZlt{}vector\PYZgt{}}
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{include\PYZlt{}iostream\PYZgt{}}
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{include\PYZdq{}MVector.hpp\PYZdq{}}
+
+\PY{k}{using} \PY{k}{namespace} \PY{n}{std}\PY{p}{;}
+
+\PY{n}{MVector} \PY{o}{\PYZam{}}\PY{n}{MVector}\PY{o}{:}\PY{o}{:}\PY{k}{operator}\PY{o}{=}\PY{p}{(}\PY{k}{const} \PY{n}{MVector}\PY{o}{\PYZam{}} \PY{n}{X}\PY{p}{)} \PY{p}{\PYZob{}}
+	\PY{k}{if}\PY{p}{(}\PY{o}{\PYZam{}}\PY{n}{X}\PY{o}{=}\PY{o}{=}\PY{k}{this}\PY{p}{)} \PY{k}{return} \PY{o}{*}\PY{k}{this}\PY{p}{;}
+		\PY{n}{v} \PY{o}{=} \PY{n}{X}\PY{p}{.}\PY{n}{v}\PY{p}{;}
+		\PY{k}{return} \PY{o}{*}\PY{k}{this}\PY{p}{;}
+	\PY{p}{\PYZcb{}}
+
+\PY{c+c1}{// The following two operators allow to use commands such as a=v[i] or v[j]=b for}
+\PY{c+c1}{// MVector objects v}
+\PY{c+c1}{//double\PYZam{} operator[](int index)\PYZob{}return v[index];\PYZcb{}}
+\PY{c+c1}{// access data in vector (const)}
+\PY{c+c1}{//double operator[](int index) const \PYZob{}return v[index];\PYZcb{}}
+
+\PY{k+kt}{double}\PY{o}{\PYZam{}} \PY{n}{MVector}\PY{o}{:}\PY{o}{:}\PY{k}{operator}\PY{p}{[}\PY{p}{]}\PY{p}{(}\PY{k+kt}{int} \PY{n}{index}\PY{p}{)} \PY{p}{\PYZob{}}
+\PY{c+c1}{// Overload [] operator for writing}
+	\PY{k}{return} \PY{n}{v}\PY{p}{[}\PY{n}{index}\PY{p}{]}\PY{p}{;}
+\PY{p}{\PYZcb{}}
+
+\PY{k+kt}{double} \PY{n}{MVector}\PY{o}{:}\PY{o}{:}\PY{k}{operator}\PY{p}{[}\PY{p}{]}\PY{p}{(}\PY{k+kt}{int} \PY{n}{index}\PY{p}{)} \PY{k}{const} \PY{p}{\PYZob{}}
+\PY{c+c1}{// Overload [] operator for reading}
+	\PY{k}{return} \PY{n}{v}\PY{p}{[}\PY{n}{index}\PY{p}{]}\PY{p}{;}
+\PY{p}{\PYZcb{}}
+
+\PY{c+c1}{// Methods (functions for this class}
+\PY{k+kt}{int} \PY{n}{MVector}\PY{o}{:}\PY{o}{:}\PY{n}{size}\PY{p}{(}\PY{p}{)} \PY{k}{const} \PY{p}{\PYZob{}}
+\PY{c+c1}{// Return size of vector}
+	\PY{k}{return} \PY{n}{v}\PY{p}{.}\PY{n}{size}\PY{p}{(}\PY{p}{)}\PY{p}{;}
+\PY{p}{\PYZcb{}}
+
+\PY{n}{vector}\PY{o}{\PYZlt{}}\PY{k+kt}{double}\PY{o}{\PYZgt{}} \PY{n}{MVector}\PY{o}{:}\PY{o}{:}\PY{n}{getVector}\PY{p}{(}\PY{p}{)} \PY{p}{\PYZob{}}
+\PY{c+c1}{// Return the underlying vector object}
+	\PY{k}{return} \PY{n}{v}\PY{p}{;}
+\PY{p}{\PYZcb{}}
+
+\PY{k+kt}{void} \PY{n}{MVector}\PY{o}{:}\PY{o}{:}\PY{n}{push\PYZus{}back}\PY{p}{(}\PY{k+kt}{double} \PY{n}{x}\PY{p}{)} \PY{p}{\PYZob{}}
+\PY{c+c1}{// Push an element into vector at the back}
+\PY{k+kt}{int} \PY{n}{s} \PY{o}{=} \PY{k}{this}\PY{o}{\PYZhy{}}\PY{o}{\PYZgt{}}\PY{n}{size}\PY{p}{(}\PY{p}{)}\PY{o}{+}\PY{l+m+mi}{1}\PY{p}{;}
+\PY{n}{vector}\PY{o}{\PYZlt{}}\PY{k+kt}{double}\PY{o}{\PYZgt{}} \PY{n}{temp}\PY{p}{(}\PY{n}{s}\PY{p}{)}\PY{p}{;}
+	\PY{k}{for}\PY{p}{(}\PY{k+kt}{int} \PY{n}{i}\PY{o}{=}\PY{l+m+mi}{0}\PY{p}{;} \PY{n}{i}\PY{o}{\PYZlt{}}\PY{n}{s}\PY{o}{\PYZhy{}}\PY{l+m+mi}{1}\PY{p}{;} \PY{n}{i}\PY{o}{+}\PY{o}{+}\PY{p}{)} \PY{p}{\PYZob{}}
+		\PY{n}{temp}\PY{p}{[}\PY{n}{i}\PY{p}{]} \PY{o}{=} \PY{n}{v}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{;}
+	\PY{p}{\PYZcb{}}
+	\PY{n}{temp}\PY{p}{[}\PY{n}{s}\PY{o}{\PYZhy{}}\PY{l+m+mi}{1}\PY{p}{]} \PY{o}{=} \PY{n}{x}\PY{p}{;}
+	\PY{n}{v} \PY{o}{=} \PY{n}{temp}\PY{p}{;}
+\PY{p}{\PYZcb{}}
+
+\PY{c+c1}{// Overload a series of operators so that they can be used on MVector objects}
+
+\PY{n}{MVector} \PY{k}{operator}\PY{o}{*}\PY{p}{(}\PY{k}{const} \PY{k+kt}{double}\PY{o}{\PYZam{}} \PY{n}{lhs}\PY{p}{,} \PY{k}{const} \PY{n}{MVector}\PY{o}{\PYZam{}} \PY{n}{rhs}\PY{p}{)} \PY{p}{\PYZob{}}
+	\PY{c+c1}{// Overload * operator to multiply MVectors with scalars}
+	\PY{n}{MVector} \PY{n}{temp}\PY{p}{(}\PY{n}{rhs}\PY{p}{)}\PY{p}{;}
+	\PY{k}{for}\PY{p}{(}\PY{k+kt}{int} \PY{n}{i}\PY{o}{=}\PY{l+m+mi}{0}\PY{p}{;} \PY{n}{i}\PY{o}{\PYZlt{}}\PY{n}{temp}\PY{p}{.}\PY{n}{size}\PY{p}{(}\PY{p}{)}\PY{p}{;} \PY{n}{i}\PY{o}{+}\PY{o}{+}\PY{p}{)} \PY{p}{\PYZob{}}
+		\PY{n}{temp}\PY{p}{[}\PY{n}{i}\PY{p}{]} \PY{o}{*}\PY{o}{=} \PY{n}{lhs}\PY{p}{;}
+	\PY{p}{\PYZcb{}}
+	\PY{k}{return} \PY{n}{temp}\PY{p}{;}
+\PY{p}{\PYZcb{}}
+
+\PY{n}{MVector} \PY{k}{operator}\PY{o}{/}\PY{p}{(}\PY{k}{const} \PY{n}{MVector}\PY{o}{\PYZam{}} \PY{n}{lhs}\PY{p}{,} \PY{k}{const} \PY{k+kt}{double}\PY{o}{\PYZam{}} \PY{n}{rhs}\PY{p}{)} \PY{p}{\PYZob{}}
+	\PY{c+c1}{// Overload / operator to divide MVectors by scalars}
+	\PY{n}{MVector} \PY{n}{temp}\PY{p}{(}\PY{n}{lhs}\PY{p}{)}\PY{p}{;}
+	\PY{k}{for}\PY{p}{(}\PY{k+kt}{int} \PY{n}{i}\PY{o}{=}\PY{l+m+mi}{0}\PY{p}{;} \PY{n}{i}\PY{o}{\PYZlt{}}\PY{n}{temp}\PY{p}{.}\PY{n}{size}\PY{p}{(}\PY{p}{)}\PY{p}{;} \PY{n}{i}\PY{o}{+}\PY{o}{+}\PY{p}{)} \PY{p}{\PYZob{}}
+		\PY{n}{temp}\PY{p}{[}\PY{n}{i}\PY{p}{]} \PY{o}{=} \PY{n}{temp}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{o}{/}\PY{n}{rhs}\PY{p}{;}
+	\PY{p}{\PYZcb{}}
+	\PY{k}{return} \PY{n}{temp}\PY{p}{;}
+\PY{p}{\PYZcb{}}
+
+\PY{n}{MVector} \PY{k}{operator}\PY{o}{+}\PY{p}{(}\PY{k}{const} \PY{n}{MVector}\PY{o}{\PYZam{}} \PY{n}{lhs}\PY{p}{,} \PY{k}{const} \PY{n}{MVector}\PY{o}{\PYZam{}} \PY{n}{rhs}\PY{p}{)} \PY{p}{\PYZob{}}
+	\PY{c+c1}{// Overload + operator to add MVectors}
+	\PY{k}{if} \PY{p}{(}\PY{n}{lhs}\PY{p}{.}\PY{n}{size}\PY{p}{(}\PY{p}{)} \PY{o}{=}\PY{o}{=} \PY{n}{rhs}\PY{p}{.}\PY{n}{size}\PY{p}{(}\PY{p}{)}\PY{p}{)}\PY{p}{\PYZob{}} \PY{c+c1}{// Give a warning if the vectors are of difference size,}
+		\PY{n}{MVector} \PY{n}{temp}\PY{p}{(}\PY{n}{lhs}\PY{p}{)}\PY{p}{;} \PY{c+c1}{// to state that the operation might not give the expected result.}
+		\PY{k}{for}\PY{p}{(}\PY{k+kt}{int} \PY{n}{i}\PY{o}{=}\PY{l+m+mi}{0}\PY{p}{;} \PY{n}{i}\PY{o}{\PYZlt{}}\PY{n}{temp}\PY{p}{.}\PY{n}{size}\PY{p}{(}\PY{p}{)}\PY{p}{;} \PY{n}{i}\PY{o}{+}\PY{o}{+}\PY{p}{)} \PY{p}{\PYZob{}}
+			\PY{n}{temp}\PY{p}{[}\PY{n}{i}\PY{p}{]} \PY{o}{+}\PY{o}{=} \PY{n}{rhs}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{;}
+		\PY{p}{\PYZcb{}}
+		\PY{k}{return} \PY{n}{temp}\PY{p}{;}
+	\PY{p}{\PYZcb{}}
+	\PY{k}{else} \PY{p}{\PYZob{}}
+		\PY{n}{cout} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{l+s}{\PYZdq{}}\PY{l+s}{Warning: The vectors are of different sizes! This could be very bad.}\PY{l+s}{\PYZdq{}} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{n}{endl}\PY{p}{;}
+		\PY{n}{MVector} \PY{n+nf}{temp}\PY{p}{(}\PY{n}{lhs}\PY{p}{)}\PY{p}{;}
+		\PY{k}{for}\PY{p}{(}\PY{k+kt}{int} \PY{n}{i}\PY{o}{=}\PY{l+m+mi}{0}\PY{p}{;} \PY{n}{i}\PY{o}{\PYZlt{}}\PY{n}{temp}\PY{p}{.}\PY{n}{size}\PY{p}{(}\PY{p}{)}\PY{p}{;} \PY{n}{i}\PY{o}{+}\PY{o}{+}\PY{p}{)} \PY{p}{\PYZob{}}
+			\PY{n}{temp}\PY{p}{[}\PY{n}{i}\PY{p}{]} \PY{o}{+}\PY{o}{=} \PY{n}{rhs}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{;}
+		\PY{p}{\PYZcb{}}
+		\PY{k}{return} \PY{n}{temp}\PY{p}{;}
+	\PY{p}{\PYZcb{}}
+\PY{p}{\PYZcb{}}
+
+\PY{n}{MVector} \PY{k}{operator}\PY{o}{\PYZhy{}}\PY{p}{(}\PY{k}{const} \PY{n}{MVector}\PY{o}{\PYZam{}} \PY{n}{lhs}\PY{p}{,} \PY{k}{const} \PY{n}{MVector}\PY{o}{\PYZam{}} \PY{n}{rhs}\PY{p}{)} \PY{p}{\PYZob{}}
+	\PY{c+c1}{// Overload \PYZhy{} operator to subtract MVectors}
+	\PY{k}{if} \PY{p}{(}\PY{n}{lhs}\PY{p}{.}\PY{n}{size}\PY{p}{(}\PY{p}{)} \PY{o}{=}\PY{o}{=} \PY{n}{rhs}\PY{p}{.}\PY{n}{size}\PY{p}{(}\PY{p}{)}\PY{p}{)}\PY{p}{\PYZob{}}
+		\PY{n}{MVector} \PY{n}{temp}\PY{p}{(}\PY{n}{lhs}\PY{p}{)}\PY{p}{;}
+		\PY{k}{for}\PY{p}{(}\PY{k+kt}{int} \PY{n}{i}\PY{o}{=}\PY{l+m+mi}{0}\PY{p}{;} \PY{n}{i}\PY{o}{\PYZlt{}}\PY{n}{temp}\PY{p}{.}\PY{n}{size}\PY{p}{(}\PY{p}{)}\PY{p}{;} \PY{n}{i}\PY{o}{+}\PY{o}{+}\PY{p}{)} \PY{p}{\PYZob{}}
+			\PY{n}{temp}\PY{p}{[}\PY{n}{i}\PY{p}{]} \PY{o}{\PYZhy{}}\PY{o}{=} \PY{n}{rhs}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{;}
+		\PY{p}{\PYZcb{}}
+		\PY{k}{return} \PY{n}{temp}\PY{p}{;}
+	\PY{p}{\PYZcb{}}
+	\PY{k}{else}\PY{p}{\PYZob{}}
+		\PY{n}{cout} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{l+s}{\PYZdq{}}\PY{l+s}{Warning: The vectors are of different sizes! This could be very bad.}\PY{l+s}{\PYZdq{}} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{n}{endl}\PY{p}{;}
+		\PY{n}{MVector} \PY{n+nf}{temp}\PY{p}{(}\PY{n}{lhs}\PY{p}{)}\PY{p}{;}
+		\PY{k}{for}\PY{p}{(}\PY{k+kt}{int} \PY{n}{i}\PY{o}{=}\PY{l+m+mi}{0}\PY{p}{;} \PY{n}{i}\PY{o}{\PYZlt{}}\PY{n}{temp}\PY{p}{.}\PY{n}{size}\PY{p}{(}\PY{p}{)}\PY{p}{;} \PY{n}{i}\PY{o}{+}\PY{o}{+}\PY{p}{)} \PY{p}{\PYZob{}}
+			\PY{n}{temp}\PY{p}{[}\PY{n}{i}\PY{p}{]} \PY{o}{\PYZhy{}}\PY{o}{=} \PY{n}{rhs}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{;}
+		\PY{p}{\PYZcb{}}
+		\PY{k}{return} \PY{n}{temp}\PY{p}{;}
+	\PY{p}{\PYZcb{}}
+\PY{p}{\PYZcb{}}
+
+\PY{k+kt}{double} \PY{k}{operator}\PY{o}{*}\PY{p}{(}\PY{k}{const} \PY{n}{MVector}\PY{o}{\PYZam{}} \PY{n}{lhs}\PY{p}{,} \PY{k}{const} \PY{n}{MVector}\PY{o}{\PYZam{}} \PY{n}{rhs}\PY{p}{)} \PY{p}{\PYZob{}}
+	\PY{c+c1}{// Overload the * operator to compute innter product of MVectors}
+	\PY{k+kt}{double} \PY{n}{ip} \PY{o}{=} \PY{l+m+mf}{0.}\PY{p}{;}
+	\PY{k}{for}\PY{p}{(}\PY{k+kt}{int} \PY{n}{i}\PY{o}{=}\PY{l+m+mi}{0}\PY{p}{;} \PY{n}{i}\PY{o}{\PYZlt{}}\PY{n}{rhs}\PY{p}{.}\PY{n}{size}\PY{p}{(}\PY{p}{)}\PY{p}{;} \PY{n}{i}\PY{o}{+}\PY{o}{+}\PY{p}{)} \PY{p}{\PYZob{}}
+		\PY{n}{ip} \PY{o}{+}\PY{o}{=} \PY{p}{(}\PY{n}{lhs}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{o}{*}\PY{n}{rhs}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{)}\PY{p}{;}
+	\PY{p}{\PYZcb{}}
+	\PY{k}{return} \PY{n}{ip}\PY{p}{;}
+\PY{p}{\PYZcb{}}
+
+\PY{n}{ostream}\PY{o}{\PYZam{}} \PY{k}{operator}\PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}}\PY{p}{(}\PY{n}{ostream}\PY{o}{\PYZam{}} \PY{n}{os}\PY{p}{,} \PY{k}{const} \PY{n}{MVector}\PY{o}{\PYZam{}} \PY{n}{v}\PY{p}{)} \PY{p}{\PYZob{}}
+	\PY{c+c1}{// Overload the \PYZlt{}\PYZlt{} operator to output MVectors to screen or file}
+	\PY{k+kt}{int} \PY{n}{n} \PY{o}{=} \PY{n}{v}\PY{p}{.}\PY{n}{size}\PY{p}{(}\PY{p}{)}\PY{p}{;}
+	\PY{n}{cout} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{l+s}{\PYZdq{}}\PY{l+s}{(}\PY{l+s}{\PYZdq{}}\PY{p}{;}
+	\PY{k}{for}\PY{p}{(}\PY{k+kt}{int} \PY{n}{i}\PY{o}{=}\PY{l+m+mi}{0}\PY{p}{;} \PY{n}{i}\PY{o}{\PYZlt{}}\PY{n}{n}\PY{p}{;} \PY{n}{i}\PY{o}{+}\PY{o}{+}\PY{p}{)} \PY{p}{\PYZob{}}
+		\PY{n}{os} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{n}{v}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{;}
+		\PY{k}{if}\PY{p}{(}\PY{n}{i}\PY{o}{\PYZlt{}}\PY{n}{n}\PY{o}{\PYZhy{}}\PY{l+m+mi}{1}\PY{p}{)} \PY{n}{cout} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{l+s}{\PYZdq{}}\PY{l+s}{,}\PY{l+s}{\PYZdq{}}\PY{p}{;}
+	\PY{p}{\PYZcb{}}
+	\PY{n}{cout} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{l+s}{\PYZdq{}}\PY{l+s}{)}\PY{l+s}{\PYZdq{}}\PY{p}{;}
+	\PY{k}{return} \PY{n}{os}\PY{p}{;}
+\PY{p}{\PYZcb{}}
+\end{Verbatim}

@@ -1,0 +1,34 @@
+\begin{Verbatim}[tabsize=2,commandchars=\\\{\},numbers=left,firstnumber=1,stepnumber=1]
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{include \PYZdq{}MFunction.hpp\PYZdq{}}
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{include \PYZdq{}MVector.hpp\PYZdq{}}
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{include \PYZdq{}odes.hpp\PYZdq{}}
+
+
+\PY{n}{MVector} \PY{n}{ivp}\PY{o}{:}\PY{o}{:}\PY{k}{operator}\PY{p}{(}\PY{p}{)}\PY{p}{(}\PY{k}{const} \PY{k+kt}{double}\PY{o}{\PYZam{}} \PY{n}{x}\PY{p}{,} \PY{k}{const} \PY{n}{MVector}\PY{o}{\PYZam{}} \PY{n}{y}\PY{p}{)}\PY{p}{\PYZob{}}
+	\PY{n}{MVector} \PY{n}{temp}\PY{p}{(}\PY{l+m+mi}{2}\PY{p}{)}\PY{p}{;}
+ 	\PY{n}{temp}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]} \PY{o}{=} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{;}
+ 	\PY{n}{temp}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{o}{=} \PY{l+m+mi}{4} \PY{o}{+} \PY{p}{(}\PY{l+m+mf}{1.}\PY{o}{/}\PY{l+m+mf}{4.}\PY{p}{)}\PY{o}{*}\PY{n}{x}\PY{o}{*}\PY{n}{x}\PY{o}{*}\PY{n}{x} \PY{o}{\PYZhy{}} \PY{p}{(}\PY{l+m+mf}{1.}\PY{o}{/}\PY{l+m+mf}{8.}\PY{p}{)}\PY{o}{*}\PY{n}{y}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{o}{*}\PY{n}{y}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{;}
+	\PY{k}{return} \PY{n}{temp}\PY{p}{;}
+\PY{p}{\PYZcb{}}
+
+\PY{n}{MVector} \PY{n}{bvp1}\PY{o}{:}\PY{o}{:}\PY{k}{operator}\PY{p}{(}\PY{p}{)}\PY{p}{(}\PY{k}{const} \PY{k+kt}{double}\PY{o}{\PYZam{}} \PY{n}{x}\PY{p}{,} \PY{k}{const} \PY{n}{MVector}\PY{o}{\PYZam{}} \PY{n}{y}\PY{p}{)}\PY{p}{\PYZob{}}
+	\PY{n}{MVector} \PY{n}{temp}\PY{p}{(}\PY{l+m+mi}{4}\PY{p}{)}\PY{p}{;}
+	\PY{n}{temp}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]} \PY{o}{=} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{;}
+	\PY{n}{temp}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{o}{=} \PY{o}{\PYZhy{}}\PY{n}{k}\PY{o}{*}\PY{n}{y}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{o}{\PYZhy{}} \PY{n}{x}\PY{o}{*}\PY{n}{y}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{;}
+	\PY{n}{temp}\PY{p}{[}\PY{l+m+mi}{2}\PY{p}{]} \PY{o}{=} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{3}\PY{p}{]}\PY{p}{;}
+	\PY{n}{temp}\PY{p}{[}\PY{l+m+mi}{3}\PY{p}{]} \PY{o}{=} \PY{o}{\PYZhy{}}\PY{n}{k}\PY{o}{*}\PY{n}{y}\PY{p}{[}\PY{l+m+mi}{3}\PY{p}{]} \PY{o}{\PYZhy{}} \PY{n}{x}\PY{o}{*}\PY{n}{y}\PY{p}{[}\PY{l+m+mi}{2}\PY{p}{]}\PY{p}{;}
+	\PY{k}{return} \PY{n}{temp}\PY{p}{;}
+\PY{p}{\PYZcb{}}
+\PY{k+kt}{void} \PY{n}{bvp1}\PY{o}{:}\PY{o}{:}\PY{n}{setk}\PY{p}{(}\PY{k+kt}{double} \PY{n}{j}\PY{p}{)}\PY{p}{\PYZob{}}
+	\PY{n}{k} \PY{o}{=} \PY{n}{j}\PY{p}{;}
+\PY{p}{\PYZcb{}}
+
+\PY{n}{MVector} \PY{n}{bvp2}\PY{o}{:}\PY{o}{:}\PY{k}{operator}\PY{p}{(}\PY{p}{)}\PY{p}{(}\PY{k}{const} \PY{k+kt}{double}\PY{o}{\PYZam{}} \PY{n}{x}\PY{p}{,} \PY{k}{const} \PY{n}{MVector}\PY{o}{\PYZam{}} \PY{n}{y}\PY{p}{)}\PY{p}{\PYZob{}}
+	\PY{n}{MVector} \PY{n}{temp}\PY{p}{(}\PY{l+m+mi}{4}\PY{p}{)}\PY{p}{;}
+	\PY{n}{temp}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]} \PY{o}{=} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{;}
+	\PY{n}{temp}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{o}{=} \PY{l+m+mi}{4} \PY{o}{+} \PY{p}{(}\PY{l+m+mf}{1.}\PY{o}{/}\PY{l+m+mf}{4.}\PY{p}{)}\PY{o}{*}\PY{n}{x}\PY{o}{*}\PY{n}{x}\PY{o}{*}\PY{n}{x} \PY{o}{\PYZhy{}} \PY{p}{(}\PY{l+m+mf}{1.}\PY{o}{/}\PY{l+m+mf}{8.}\PY{p}{)}\PY{o}{*}\PY{n}{y}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{o}{*}\PY{n}{y}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{;}
+	\PY{n}{temp}\PY{p}{[}\PY{l+m+mi}{2}\PY{p}{]} \PY{o}{=} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{3}\PY{p}{]}\PY{p}{;}
+	\PY{n}{temp}\PY{p}{[}\PY{l+m+mi}{3}\PY{p}{]} \PY{o}{=} \PY{p}{(}\PY{o}{\PYZhy{}}\PY{l+m+mf}{1.}\PY{o}{/}\PY{l+m+mf}{8.}\PY{p}{)}\PY{o}{*}\PY{p}{(}\PY{n}{y}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{o}{*}\PY{n}{y}\PY{p}{[}\PY{l+m+mi}{2}\PY{p}{]} \PY{o}{+} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{o}{*}\PY{n}{y}\PY{p}{[}\PY{l+m+mi}{3}\PY{p}{]}\PY{p}{)}\PY{p}{;}
+	\PY{k}{return} \PY{n}{temp}\PY{p}{;}
+\PY{p}{\PYZcb{}}
+\end{Verbatim}

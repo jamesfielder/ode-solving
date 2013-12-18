@@ -1,0 +1,171 @@
+\begin{Verbatim}[commandchars=\\\{\},numbers=left,firstnumber=1,stepnumber=1]
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{include \PYZlt{}iostream\PYZgt{}}
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{include \PYZlt{}string\PYZgt{}}
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{include \PYZlt{}vector\PYZgt{}}
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{include \PYZlt{}cmath\PYZgt{}}
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{include \PYZdq{}MFunction.hpp\PYZdq{}}
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{include \PYZdq{}MVector.hpp\PYZdq{}}
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{include \PYZdq{}solvers.hpp\PYZdq{}}
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{include \PYZdq{}odes.hpp\PYZdq{}}
+
+\PY{n}{MVector} \PY{n+nf}{shooting}\PY{p}{(}\PY{k+kt}{double} \PY{n}{g}\PY{p}{,} \PY{n}{MVector} \PY{o}{\PYZam{}}\PY{n}{y}\PY{p}{,} \PY{n}{MVector} \PY{n}{d}\PY{p}{)}\PY{p}{\PYZob{}}
+	\PY{k+kt}{double} \PY{n}{phi}\PY{p}{,} \PY{n}{phidash}\PY{p}{,} \PY{n}{lower}\PY{p}{,} \PY{n}{upper}\PY{p}{;}
+	\PY{n}{MVector} \PY{n}{out}\PY{p}{(}\PY{l+m+mi}{2}\PY{p}{)}\PY{p}{;}
+	\PY{n}{lower} \PY{o}{=} \PY{n}{d}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{;} \PY{n}{upper} \PY{o}{=} \PY{n}{d}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{;}
+	\PY{n}{phi} \PY{o}{=} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]} \PY{o}{\PYZhy{}} \PY{n}{upper}\PY{p}{;} \PY{c+c1}{// check the boundary conditions}
+	\PY{n}{phidash} \PY{o}{=} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{2}\PY{p}{]}\PY{p}{;}
+	\PY{n}{g} \PY{o}{=} \PY{n}{g} \PY{o}{\PYZhy{}} \PY{n}{phi}\PY{o}{/}\PY{n}{phidash}\PY{p}{;}
+	\PY{n}{out}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]} \PY{o}{=} \PY{n}{g}\PY{p}{;} \PY{n}{out}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{o}{=} \PY{n}{phi}\PY{p}{;}
+	\PY{k}{return} \PY{n}{out}\PY{p}{;}
+\PY{p}{\PYZcb{}}
+
+\PY{k+kt}{int} \PY{n+nf}{main}\PY{p}{(}\PY{k+kt}{int} \PY{n}{argc}\PY{p}{,} \PY{k+kt}{char}\PY{o}{*} \PY{n}{argv}\PY{p}{[}\PY{p}{]}\PY{p}{)}\PY{p}{\PYZob{}}
+	\PY{k+kt}{int} \PY{n}{j} \PY{o}{=} \PY{l+m+mi}{0}\PY{p}{;} 
+	\PY{k+kt}{int} \PY{n}{steps}\PY{p}{,} \PY{n}{n}\PY{p}{;}
+	\PY{k+kt}{double} \PY{n}{tol}\PY{p}{,} \PY{n}{guess}\PY{p}{;}
+	\PY{n}{string} \PY{n}{method}\PY{p}{,} \PY{n}{flag1}\PY{p}{,} \PY{n}{flag4}\PY{p}{;}
+	\PY{n}{method} \PY{o}{=} \PY{n}{argv}\PY{p}{[}\PY{l+m+mi}{2}\PY{p}{]}\PY{p}{;} \PY{c+c1}{// allow us to check this is given correctly later}
+	\PY{n}{tol} \PY{o}{=} \PY{l+m+mf}{0.00000000001}\PY{p}{;} \PY{c+c1}{// set the tolerance}
+	\PY{k}{if} \PY{p}{(}\PY{n}{argc} \PY{o}{\PYZlt{}} \PY{l+m+mi}{4}\PY{p}{)}\PY{p}{\PYZob{}}
+		\PY{n}{std}\PY{o}{:}\PY{o}{:}\PY{n}{cout} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{l+s}{\PYZdq{}}\PY{l+s}{Usage: ode [\PYZhy{}b1/\PYZhy{}b2/\PYZhy{}i] [method] [steps] \PYZhy{}f}\PY{l+s}{\PYZdq{}} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{n}{std}\PY{o}{:}\PY{o}{:}\PY{n}{endl}\PY{p}{;}
+		\PY{k}{return} \PY{l+m+mi}{0}\PY{p}{;} \PY{c+c1}{// the minimum number of arguements is 3}
+	\PY{p}{\PYZcb{}}
+	\PY{k}{if} \PY{p}{(}\PY{n}{argc} \PY{o}{=}\PY{o}{=} \PY{l+m+mi}{5}\PY{p}{)}\PY{p}{\PYZob{}}
+		\PY{n}{flag4} \PY{o}{=} \PY{n}{argv}\PY{p}{[}\PY{l+m+mi}{4}\PY{p}{]}\PY{p}{;}
+		\PY{k}{if} \PY{p}{(}\PY{n}{flag4}\PY{p}{.}\PY{n}{compare}\PY{p}{(}\PY{l+s}{\PYZdq{}}\PY{l+s}{\PYZhy{}f}\PY{l+s}{\PYZdq{}}\PY{p}{)} \PY{o}{=}\PY{o}{=} \PY{l+m+mi}{0}\PY{p}{)}\PY{p}{\PYZob{}}
+			\PY{n}{j} \PY{o}{=} \PY{l+m+mi}{1}\PY{p}{;}
+		\PY{p}{\PYZcb{}}
+		\PY{k}{else}\PY{p}{\PYZob{}}
+			\PY{n}{std}\PY{o}{:}\PY{o}{:}\PY{n}{cout} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{l+s}{\PYZdq{}}\PY{l+s}{Assuming not writing into file}\PY{l+s}{\PYZdq{}} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{n}{std}\PY{o}{:}\PY{o}{:}\PY{n}{endl}\PY{p}{;}
+			\PY{n}{j} \PY{o}{=} \PY{l+m+mi}{0}\PY{p}{;}
+		\PY{p}{\PYZcb{}}
+	\PY{p}{\PYZcb{}}
+	\PY{k}{if} \PY{p}{(}\PY{n}{method}\PY{p}{.}\PY{n}{compare}\PY{p}{(}\PY{l+s}{\PYZdq{}}\PY{l+s}{euler}\PY{l+s}{\PYZdq{}}\PY{p}{)} \PY{o}{!}\PY{o}{=} \PY{l+m+mi}{0} \PY{o}{\PYZam{}}\PY{o}{\PYZam{}} \PY{n}{method}\PY{p}{.}\PY{n}{compare}\PY{p}{(}\PY{l+s}{\PYZdq{}}\PY{l+s}{midpoint}\PY{l+s}{\PYZdq{}}\PY{p}{)} \PY{o}{!}\PY{o}{=} \PY{l+m+mi}{0} \PY{o}{\PYZam{}}\PY{o}{\PYZam{}} \PY{n}{method}\PY{p}{.}\PY{n}{compare}\PY{p}{(}\PY{l+s}{\PYZdq{}}\PY{l+s}{runge\PYZhy{}kutta}\PY{l+s}{\PYZdq{}}\PY{p}{)} \PY{o}{!}\PY{o}{=} \PY{l+m+mi}{0}\PY{p}{)} \PY{p}{\PYZob{}}
+		\PY{n}{std}\PY{o}{:}\PY{o}{:}\PY{n}{cout} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{l+s}{\PYZdq{}}\PY{l+s}{Please choose either the euler, midpoint or runge\PYZhy{}kutta method}\PY{l+s}{\PYZdq{}} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{n}{endl}\PY{p}{;}
+		\PY{k}{return} \PY{l+m+mi}{0}\PY{p}{;}
+	\PY{p}{\PYZcb{}}
+	\PY{k}{if} \PY{p}{(}\PY{n}{argc} \PY{o}{\PYZgt{}} \PY{l+m+mi}{3}\PY{p}{)}\PY{p}{\PYZob{}} \PY{c+c1}{// so long as we have more than 2 arguments we are good to go}
+		\PY{n}{std}\PY{o}{:}\PY{o}{:}\PY{n}{string} \PY{n}{flag1} \PY{o}{=} \PY{n}{argv}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{;}
+		\PY{n}{steps} \PY{o}{=} \PY{n}{std}\PY{o}{:}\PY{o}{:}\PY{n}{stoi}\PY{p}{(}\PY{n}{argv}\PY{p}{[}\PY{l+m+mi}{3}\PY{p}{]}\PY{p}{)}\PY{p}{;} \PY{c+c1}{// c++11 way to change a string to an int}
+		\PY{k}{if} \PY{p}{(}\PY{n}{flag1}\PY{p}{.}\PY{n}{compare}\PY{p}{(}\PY{l+s}{\PYZdq{}}\PY{l+s}{\PYZhy{}b1}\PY{l+s}{\PYZdq{}}\PY{p}{)} \PY{o}{=}\PY{o}{=} \PY{l+m+mi}{0}\PY{p}{)}\PY{p}{\PYZob{}}
+			\PY{n}{MVector} \PY{n}{d}\PY{p}{(}\PY{l+m+mi}{2}\PY{p}{)}\PY{p}{;} \PY{c+c1}{// set the boundary conditions}
+			\PY{n}{MVector} \PY{n}{y}\PY{p}{(}\PY{l+m+mi}{4}\PY{p}{)}\PY{p}{;} \PY{c+c1}{// to contain the problem}
+			\PY{n}{MVector} \PY{n}{temp}\PY{p}{(}\PY{l+m+mi}{2}\PY{p}{)}\PY{p}{;} \PY{c+c1}{// keep the output from shooting}
+			\PY{n}{d}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]} \PY{o}{=} \PY{l+m+mi}{0}\PY{p}{;} \PY{n}{d}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{o}{=} \PY{l+m+mi}{1}\PY{p}{;}
+			\PY{n}{guess} \PY{o}{=} \PY{l+m+mf}{5.}\PY{p}{;}
+			\PY{n}{bvp1} \PY{n}{f}\PY{p}{;}
+			\PY{n}{ivp\PYZus{}solvers} \PY{n}{solv} \PY{p}{(}\PY{n}{steps}\PY{p}{,} \PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{)}\PY{p}{;}
+			\PY{k}{if} \PY{p}{(}\PY{n}{method}\PY{p}{.}\PY{n}{compare}\PY{p}{(}\PY{l+s}{\PYZdq{}}\PY{l+s}{euler}\PY{l+s}{\PYZdq{}}\PY{p}{)} \PY{o}{=}\PY{o}{=} \PY{l+m+mi}{0}\PY{p}{)}\PY{p}{\PYZob{}}
+				\PY{k}{for} \PY{p}{(}\PY{n}{n} \PY{o}{=} \PY{l+m+mi}{0}\PY{p}{;} \PY{n}{n} \PY{o}{\PYZlt{}} \PY{l+m+mi}{500}\PY{p}{;} \PY{n}{n}\PY{o}{+}\PY{o}{+}\PY{p}{)}\PY{p}{\PYZob{}}
+					\PY{n}{y}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]} \PY{o}{=} \PY{l+m+mf}{0.}\PY{p}{;} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{o}{=} \PY{n}{guess}\PY{p}{;} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{2}\PY{p}{]} \PY{o}{=} \PY{l+m+mf}{0.}\PY{p}{;} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{3}\PY{p}{]} \PY{o}{=} \PY{l+m+mf}{1.}\PY{p}{;}
+					\PY{n}{solv}\PY{p}{.}\PY{n}{euler}\PY{p}{(}\PY{n}{y}\PY{p}{,} \PY{n}{f}\PY{p}{,} \PY{n}{j}\PY{p}{)}\PY{p}{;}
+					\PY{n}{temp} \PY{o}{=} \PY{n}{shooting}\PY{p}{(}\PY{n}{guess}\PY{p}{,} \PY{n}{y}\PY{p}{,} \PY{n}{d}\PY{p}{)}\PY{p}{;}
+					\PY{n}{guess} \PY{o}{=} \PY{n}{temp}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{;}
+					\PY{k}{if} \PY{p}{(}\PY{n}{abs}\PY{p}{(}\PY{n}{temp}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}\PY{o}{\PYZlt{}}\PY{n}{tol}\PY{p}{)}\PY{p}{\PYZob{}} \PY{c+c1}{// finish the loop when sufficently close}
+						\PY{k}{break}\PY{p}{;}
+					\PY{p}{\PYZcb{}}
+				\PY{p}{\PYZcb{}}
+			\PY{p}{\PYZcb{}}
+			\PY{k}{if} \PY{p}{(}\PY{n}{method}\PY{p}{.}\PY{n}{compare}\PY{p}{(}\PY{l+s}{\PYZdq{}}\PY{l+s}{midpoint}\PY{l+s}{\PYZdq{}}\PY{p}{)} \PY{o}{=}\PY{o}{=} \PY{l+m+mi}{0}\PY{p}{)}\PY{p}{\PYZob{}}
+				\PY{k}{for} \PY{p}{(}\PY{n}{n} \PY{o}{=} \PY{l+m+mi}{0}\PY{p}{;} \PY{n}{n} \PY{o}{\PYZlt{}} \PY{l+m+mi}{500}\PY{p}{;} \PY{n}{n}\PY{o}{+}\PY{o}{+}\PY{p}{)}\PY{p}{\PYZob{}}
+					\PY{n}{y}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]} \PY{o}{=} \PY{l+m+mf}{0.}\PY{p}{;} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{o}{=} \PY{n}{guess}\PY{p}{;} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{2}\PY{p}{]} \PY{o}{=} \PY{l+m+mf}{0.}\PY{p}{;} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{3}\PY{p}{]} \PY{o}{=} \PY{l+m+mf}{1.}\PY{p}{;}
+					\PY{n}{solv}\PY{p}{.}\PY{n}{midpoint}\PY{p}{(}\PY{n}{y}\PY{p}{,} \PY{n}{f}\PY{p}{,} \PY{n}{j}\PY{p}{)}\PY{p}{;}
+					\PY{n}{temp} \PY{o}{=} \PY{n}{shooting}\PY{p}{(}\PY{n}{guess}\PY{p}{,} \PY{n}{y}\PY{p}{,} \PY{n}{d}\PY{p}{)}\PY{p}{;}
+					\PY{n}{guess} \PY{o}{=} \PY{n}{temp}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{;}
+					\PY{k}{if} \PY{p}{(}\PY{n}{abs}\PY{p}{(}\PY{n}{temp}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}\PY{o}{\PYZlt{}}\PY{n}{tol}\PY{p}{)}\PY{p}{\PYZob{}}
+						\PY{k}{break}\PY{p}{;}
+					\PY{p}{\PYZcb{}}
+				\PY{p}{\PYZcb{}}
+			\PY{p}{\PYZcb{}}
+			\PY{k}{if} \PY{p}{(}\PY{n}{method}\PY{p}{.}\PY{n}{compare}\PY{p}{(}\PY{l+s}{\PYZdq{}}\PY{l+s}{runge\PYZhy{}kutta}\PY{l+s}{\PYZdq{}}\PY{p}{)} \PY{o}{=}\PY{o}{=} \PY{l+m+mi}{0}\PY{p}{)}\PY{p}{\PYZob{}}
+				\PY{k}{for} \PY{p}{(}\PY{n}{n} \PY{o}{=} \PY{l+m+mi}{0}\PY{p}{;} \PY{n}{n} \PY{o}{\PYZlt{}} \PY{l+m+mi}{500}\PY{p}{;} \PY{n}{n}\PY{o}{+}\PY{o}{+}\PY{p}{)}\PY{p}{\PYZob{}}
+					\PY{n}{y}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]} \PY{o}{=} \PY{l+m+mf}{0.}\PY{p}{;} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{o}{=} \PY{n}{guess}\PY{p}{;} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{2}\PY{p}{]} \PY{o}{=} \PY{l+m+mf}{0.}\PY{p}{;} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{3}\PY{p}{]} \PY{o}{=} \PY{l+m+mf}{1.}\PY{p}{;}
+					\PY{n}{solv}\PY{p}{.}\PY{n}{runge}\PY{p}{(}\PY{n}{y}\PY{p}{,} \PY{n}{f}\PY{p}{,} \PY{n}{j}\PY{p}{)}\PY{p}{;}
+					\PY{n}{temp} \PY{o}{=} \PY{n}{shooting}\PY{p}{(}\PY{n}{guess}\PY{p}{,} \PY{n}{y}\PY{p}{,} \PY{n}{d}\PY{p}{)}\PY{p}{;}
+					\PY{n}{guess} \PY{o}{=} \PY{n}{temp}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{;}
+					\PY{k}{if} \PY{p}{(}\PY{n}{abs}\PY{p}{(}\PY{n}{temp}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}\PY{o}{\PYZlt{}}\PY{n}{tol}\PY{p}{)}\PY{p}{\PYZob{}}
+						\PY{k}{break}\PY{p}{;}
+					\PY{p}{\PYZcb{}}
+				\PY{p}{\PYZcb{}}
+			\PY{p}{\PYZcb{}}
+			\PY{k}{if}\PY{p}{(}\PY{n}{abs}\PY{p}{(}\PY{n}{temp}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}\PY{o}{\PYZgt{}}\PY{l+m+mf}{1.}\PY{p}{)}\PY{p}{\PYZob{}} \PY{c+c1}{// deal with being unable to find the root}
+				\PY{n}{std}\PY{o}{:}\PY{o}{:}\PY{n}{cout} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{l+s}{\PYZdq{}}\PY{l+s}{A root was not found during the shooting method. Something is probably wrong.}\PY{l+s}{\PYZdq{}} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{n}{std}\PY{o}{:}\PY{o}{:}\PY{n}{endl}\PY{p}{;}
+			\PY{p}{\PYZcb{}}
+			\PY{n}{std}\PY{o}{:}\PY{o}{:}\PY{n}{cout} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{l+s}{\PYZdq{}}\PY{l+s}{y(x): }\PY{l+s}{\PYZdq{}} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{n}{std}\PY{o}{:}\PY{o}{:}\PY{n}{endl}\PY{p}{;} \PY{c+c1}{// output the important values}
+			\PY{n}{std}\PY{o}{:}\PY{o}{:}\PY{n}{cout} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{l+s}{\PYZdq{}}\PY{l+s}{y\PYZsq{}(x): }\PY{l+s}{\PYZdq{}} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{n}{std}\PY{o}{:}\PY{o}{:}\PY{n}{endl}\PY{p}{;}
+			\PY{p}{\PYZcb{}}
+		\PY{k}{if} \PY{p}{(}\PY{n}{flag1}\PY{p}{.}\PY{n}{compare}\PY{p}{(}\PY{l+s}{\PYZdq{}}\PY{l+s}{\PYZhy{}b2}\PY{l+s}{\PYZdq{}}\PY{p}{)} \PY{o}{=}\PY{o}{=} \PY{l+m+mi}{0}\PY{p}{)}\PY{p}{\PYZob{}}
+			\PY{n}{MVector} \PY{n}{d}\PY{p}{(}\PY{l+m+mi}{2}\PY{p}{)}\PY{p}{;} \PY{c+c1}{// set the boundary conditions}
+			\PY{n}{MVector} \PY{n}{y}\PY{p}{(}\PY{l+m+mi}{4}\PY{p}{)}\PY{p}{;} \PY{c+c1}{// to contain the problem}
+			\PY{n}{MVector} \PY{n}{temp}\PY{p}{(}\PY{l+m+mi}{2}\PY{p}{)}\PY{p}{;} \PY{c+c1}{// keep the output from shooting}
+			\PY{n}{d}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]} \PY{o}{=} \PY{l+m+mf}{17.}\PY{p}{;} \PY{n}{d}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{o}{=} \PY{p}{(}\PY{l+m+mf}{43.}\PY{o}{/}\PY{l+m+mf}{3.}\PY{p}{)}\PY{p}{;}
+			\PY{n}{guess} \PY{o}{=} \PY{l+m+mf}{5.}\PY{p}{;}
+			\PY{n}{bvp2} \PY{n}{f}\PY{p}{;}
+			\PY{n}{ivp\PYZus{}solvers} \PY{n}{solv} \PY{p}{(}\PY{n}{steps}\PY{p}{,} \PY{l+m+mf}{1.}\PY{p}{,} \PY{l+m+mf}{3.}\PY{p}{)}\PY{p}{;}
+			\PY{k}{if} \PY{p}{(}\PY{n}{method}\PY{p}{.}\PY{n}{compare}\PY{p}{(}\PY{l+s}{\PYZdq{}}\PY{l+s}{euler}\PY{l+s}{\PYZdq{}}\PY{p}{)} \PY{o}{=}\PY{o}{=} \PY{l+m+mi}{0}\PY{p}{)}\PY{p}{\PYZob{}}
+				\PY{k}{for} \PY{p}{(}\PY{n}{n} \PY{o}{=} \PY{l+m+mi}{0}\PY{p}{;} \PY{n}{n} \PY{o}{\PYZlt{}} \PY{l+m+mi}{500}\PY{p}{;} \PY{n}{n}\PY{o}{+}\PY{o}{+}\PY{p}{)}\PY{p}{\PYZob{}}
+					\PY{n}{y}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]} \PY{o}{=} \PY{l+m+mf}{0.}\PY{p}{;} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{o}{=} \PY{n}{guess}\PY{p}{;} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{2}\PY{p}{]} \PY{o}{=} \PY{l+m+mf}{0.}\PY{p}{;} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{3}\PY{p}{]} \PY{o}{=} \PY{l+m+mf}{1.}\PY{p}{;}
+					\PY{n}{solv}\PY{p}{.}\PY{n}{euler}\PY{p}{(}\PY{n}{y}\PY{p}{,} \PY{n}{f}\PY{p}{,} \PY{n}{j}\PY{p}{)}\PY{p}{;}
+					\PY{n}{temp} \PY{o}{=} \PY{n}{shooting}\PY{p}{(}\PY{n}{guess}\PY{p}{,} \PY{n}{y}\PY{p}{,} \PY{n}{d}\PY{p}{)}\PY{p}{;}
+					\PY{n}{guess} \PY{o}{=} \PY{n}{temp}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{;}
+					\PY{k}{if} \PY{p}{(}\PY{n}{abs}\PY{p}{(}\PY{n}{temp}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}\PY{o}{\PYZlt{}}\PY{n}{tol}\PY{p}{)}\PY{p}{\PYZob{}} \PY{c+c1}{// finish the loop when sufficently close}
+						\PY{k}{break}\PY{p}{;}
+					\PY{p}{\PYZcb{}}
+				\PY{p}{\PYZcb{}}
+			\PY{p}{\PYZcb{}}
+			\PY{k}{if} \PY{p}{(}\PY{n}{method}\PY{p}{.}\PY{n}{compare}\PY{p}{(}\PY{l+s}{\PYZdq{}}\PY{l+s}{midpoint}\PY{l+s}{\PYZdq{}}\PY{p}{)} \PY{o}{=}\PY{o}{=} \PY{l+m+mi}{0}\PY{p}{)}\PY{p}{\PYZob{}}
+				\PY{k}{for} \PY{p}{(}\PY{n}{n} \PY{o}{=} \PY{l+m+mi}{0}\PY{p}{;} \PY{n}{n} \PY{o}{\PYZlt{}} \PY{l+m+mi}{500}\PY{p}{;} \PY{n}{n}\PY{o}{+}\PY{o}{+}\PY{p}{)}\PY{p}{\PYZob{}}
+					\PY{n}{y}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]} \PY{o}{=} \PY{l+m+mf}{0.}\PY{p}{;} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{o}{=} \PY{n}{guess}\PY{p}{;} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{2}\PY{p}{]} \PY{o}{=} \PY{l+m+mf}{0.}\PY{p}{;} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{3}\PY{p}{]} \PY{o}{=} \PY{l+m+mf}{1.}\PY{p}{;}
+					\PY{n}{solv}\PY{p}{.}\PY{n}{midpoint}\PY{p}{(}\PY{n}{y}\PY{p}{,} \PY{n}{f}\PY{p}{,} \PY{n}{j}\PY{p}{)}\PY{p}{;}
+					\PY{n}{temp} \PY{o}{=} \PY{n}{shooting}\PY{p}{(}\PY{n}{guess}\PY{p}{,} \PY{n}{y}\PY{p}{,} \PY{n}{d}\PY{p}{)}\PY{p}{;}
+					\PY{n}{guess} \PY{o}{=} \PY{n}{temp}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{;}
+					\PY{k}{if} \PY{p}{(}\PY{n}{abs}\PY{p}{(}\PY{n}{temp}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}\PY{o}{\PYZlt{}}\PY{n}{tol}\PY{p}{)}\PY{p}{\PYZob{}}
+						\PY{k}{break}\PY{p}{;}
+					\PY{p}{\PYZcb{}}
+				\PY{p}{\PYZcb{}}
+			\PY{p}{\PYZcb{}}
+			\PY{k}{if} \PY{p}{(}\PY{n}{method}\PY{p}{.}\PY{n}{compare}\PY{p}{(}\PY{l+s}{\PYZdq{}}\PY{l+s}{runge\PYZhy{}kutta}\PY{l+s}{\PYZdq{}}\PY{p}{)} \PY{o}{=}\PY{o}{=} \PY{l+m+mi}{0}\PY{p}{)}\PY{p}{\PYZob{}}
+				\PY{k}{for} \PY{p}{(}\PY{n}{n} \PY{o}{=} \PY{l+m+mi}{0}\PY{p}{;} \PY{n}{n} \PY{o}{\PYZlt{}} \PY{l+m+mi}{500}\PY{p}{;} \PY{n}{n}\PY{o}{+}\PY{o}{+}\PY{p}{)}\PY{p}{\PYZob{}}
+					\PY{n}{y}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]} \PY{o}{=} \PY{l+m+mf}{0.}\PY{p}{;} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{o}{=} \PY{n}{guess}\PY{p}{;} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{2}\PY{p}{]} \PY{o}{=} \PY{l+m+mf}{0.}\PY{p}{;} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{3}\PY{p}{]} \PY{o}{=} \PY{l+m+mf}{1.}\PY{p}{;}
+					\PY{n}{solv}\PY{p}{.}\PY{n}{runge}\PY{p}{(}\PY{n}{y}\PY{p}{,} \PY{n}{f}\PY{p}{,} \PY{n}{j}\PY{p}{)}\PY{p}{;}
+					\PY{n}{temp} \PY{o}{=} \PY{n}{shooting}\PY{p}{(}\PY{n}{guess}\PY{p}{,} \PY{n}{y}\PY{p}{,} \PY{n}{d}\PY{p}{)}\PY{p}{;}
+					\PY{n}{guess} \PY{o}{=} \PY{n}{temp}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{;}
+					\PY{k}{if} \PY{p}{(}\PY{n}{abs}\PY{p}{(}\PY{n}{temp}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}\PY{o}{\PYZlt{}}\PY{n}{tol}\PY{p}{)}\PY{p}{\PYZob{}}
+						\PY{k}{break}\PY{p}{;}
+					\PY{p}{\PYZcb{}}
+				\PY{p}{\PYZcb{}}
+			\PY{p}{\PYZcb{}}
+			\PY{k}{if}\PY{p}{(}\PY{n}{abs}\PY{p}{(}\PY{n}{temp}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}\PY{o}{\PYZgt{}}\PY{l+m+mf}{1.}\PY{p}{)}\PY{p}{\PYZob{}} \PY{c+c1}{// deal with being unable to find the root}
+				\PY{n}{std}\PY{o}{:}\PY{o}{:}\PY{n}{cout} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{l+s}{\PYZdq{}}\PY{l+s}{A root was not found during the shooting method. Something is probably wrong.}\PY{l+s}{\PYZdq{}} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{n}{std}\PY{o}{:}\PY{o}{:}\PY{n}{endl}\PY{p}{;}
+			\PY{p}{\PYZcb{}}
+			\PY{n}{std}\PY{o}{:}\PY{o}{:}\PY{n}{cout} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{l+s}{\PYZdq{}}\PY{l+s}{y(x): }\PY{l+s}{\PYZdq{}} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{n}{std}\PY{o}{:}\PY{o}{:}\PY{n}{endl}\PY{p}{;} \PY{c+c1}{// output the important values}
+			\PY{n}{std}\PY{o}{:}\PY{o}{:}\PY{n}{cout} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{l+s}{\PYZdq{}}\PY{l+s}{y\PYZsq{}(x): }\PY{l+s}{\PYZdq{}} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{n}{std}\PY{o}{:}\PY{o}{:}\PY{n}{endl}\PY{p}{;}
+			\PY{k}{return} \PY{l+m+mi}{0}\PY{p}{;}
+			\PY{p}{\PYZcb{}}
+		\PY{k}{if} \PY{p}{(}\PY{n}{flag1}\PY{p}{.}\PY{n}{compare}\PY{p}{(}\PY{l+s}{\PYZdq{}}\PY{l+s}{\PYZhy{}i}\PY{l+s}{\PYZdq{}}\PY{p}{)} \PY{o}{=}\PY{o}{=} \PY{l+m+mi}{0}\PY{p}{)}\PY{p}{\PYZob{}}
+			\PY{n}{MVector} \PY{n}{d}\PY{p}{(}\PY{l+m+mi}{2}\PY{p}{)}\PY{p}{;} 
+			\PY{n}{d}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]} \PY{o}{=} \PY{l+m+mi}{17}\PY{p}{;} \PY{n}{d}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{o}{=} \PY{l+m+mi}{1}\PY{p}{;}
+			\PY{n}{MVector} \PY{n}{y}\PY{p}{(}\PY{l+m+mi}{2}\PY{p}{)}\PY{p}{;}
+			\PY{n}{y} \PY{o}{=} \PY{n}{d}\PY{p}{;}
+			\PY{n}{ivp} \PY{n}{f}\PY{p}{;}
+			\PY{n}{ivp\PYZus{}solvers} \PY{n}{solv} \PY{p}{(}\PY{n}{steps}\PY{p}{,} \PY{l+m+mf}{1.}\PY{p}{,} \PY{l+m+mf}{3.}\PY{p}{)}\PY{p}{;}
+			\PY{k}{if} \PY{p}{(}\PY{n}{method}\PY{p}{.}\PY{n}{compare}\PY{p}{(}\PY{l+s}{\PYZdq{}}\PY{l+s}{euler}\PY{l+s}{\PYZdq{}}\PY{p}{)} \PY{o}{=}\PY{o}{=} \PY{l+m+mi}{0}\PY{p}{)}\PY{p}{\PYZob{}}
+				\PY{n}{solv}\PY{p}{.}\PY{n}{euler}\PY{p}{(}\PY{n}{y}\PY{p}{,} \PY{n}{f}\PY{p}{,} \PY{n}{j}\PY{p}{)}\PY{p}{;}
+			\PY{p}{\PYZcb{}}
+			\PY{k}{if} \PY{p}{(}\PY{n}{method}\PY{p}{.}\PY{n}{compare}\PY{p}{(}\PY{l+s}{\PYZdq{}}\PY{l+s}{midpoint}\PY{l+s}{\PYZdq{}}\PY{p}{)} \PY{o}{=}\PY{o}{=} \PY{l+m+mi}{0}\PY{p}{)}\PY{p}{\PYZob{}}
+				\PY{n}{solv}\PY{p}{.}\PY{n}{midpoint}\PY{p}{(}\PY{n}{y}\PY{p}{,} \PY{n}{f}\PY{p}{,} \PY{n}{j}\PY{p}{)}\PY{p}{;}
+			\PY{p}{\PYZcb{}}
+			\PY{k}{if} \PY{p}{(}\PY{n}{method}\PY{p}{.}\PY{n}{compare}\PY{p}{(}\PY{l+s}{\PYZdq{}}\PY{l+s}{runge\PYZhy{}kutta}\PY{l+s}{\PYZdq{}}\PY{p}{)} \PY{o}{=}\PY{o}{=} \PY{l+m+mi}{0}\PY{p}{)}\PY{p}{\PYZob{}}
+				\PY{n}{solv}\PY{p}{.}\PY{n}{runge}\PY{p}{(}\PY{n}{y}\PY{p}{,} \PY{n}{f}\PY{p}{,} \PY{n}{j}\PY{p}{)}\PY{p}{;}
+			\PY{p}{\PYZcb{}}
+			\PY{n}{std}\PY{o}{:}\PY{o}{:}\PY{n}{cout} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{l+s}{\PYZdq{}}\PY{l+s}{y(x): }\PY{l+s}{\PYZdq{}} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{n}{std}\PY{o}{:}\PY{o}{:}\PY{n}{endl}\PY{p}{;} 
+			\PY{n}{std}\PY{o}{:}\PY{o}{:}\PY{n}{cout} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{l+s}{\PYZdq{}}\PY{l+s}{y\PYZsq{}(x): }\PY{l+s}{\PYZdq{}} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{n}{y}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{o}{\PYZlt{}}\PY{o}{\PYZlt{}} \PY{n}{std}\PY{o}{:}\PY{o}{:}\PY{n}{endl}\PY{p}{;}
+			\PY{k}{return} \PY{l+m+mi}{0}\PY{p}{;}
+		\PY{p}{\PYZcb{}}
+	\PY{p}{\PYZcb{}}
+	\PY{k}{else}\PY{p}{\PYZob{}}
+		\PY{k}{return} \PY{l+m+mi}{1}\PY{p}{;} \PY{c+c1}{// return 1 after unexpected input, as per unix rules}
+	\PY{p}{\PYZcb{}} \PY{c+c1}{// at least, I think it\PYZsq{}s a unix thing}
+	\PY{k}{return} \PY{l+m+mi}{1}\PY{p}{;}
+\PY{p}{\PYZcb{}}
+\end{Verbatim}

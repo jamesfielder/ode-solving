@@ -1,0 +1,668 @@
+\documentclass[a4paper,11pt]{report}
+
+\usepackage{color}
+\usepackage{geometry}
+\usepackage[urw-garamond]{mathdesign}
+% \usepackage[charter]{mathdesign}
+% \usepackage{palatino}
+% \usepackage{mathpazo}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{microtype}
+\usepackage{hyperref}
+\usepackage[backend=biber]{biblatex}
+\usepackage{graphicx}
+\graphicspath{{./img/}}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{minted}
+\usepackage{pdflscape}
+
+\usepackage{titlesec}
+\definecolor{gray75}{gray}{0.75}
+\newcommand{\hsp}{\hspace{20pt}}
+\titleformat{\chapter}[hang]{\Huge\bfseries}{\thechapter\hsp\textcolor{gray75}{|}\hsp}{0pt}{\Huge\bfseries}
+\titlespacing*{\chapter}{0pt}{0pt}{60pt}{}
+
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% Adding support for python pygments
+\usepackage{fancyvrb}
+\usepackage{color}
+% Adding the pygments colour file
+\input{pygments.tex}
+
+% fancy header
+\usepackage{fancyhdr}
+% Normal enviroment is for non chapter heading pages. Need a geometry fix for the text running into the header. Turns out the fix is just to add the [headings]
+% option to fullpage! The gods of TeX smile upon me.
+\fancypagestyle{normal}{%
+  \fancyhf{}
+  \fancyhead[L]{\rule[-2ex]{0pt}{2ex}\small \nouppercase{\leftmark}}
+  \fancyhead[R]{\rule[-2ex]{0pt}{2ex}\small \nouppercase{\rightmark}}
+  \fancyfoot[L]{}
+  \fancyfoot[C]{\thepage}
+  \fancyfoot[R]{}
+  \renewcommand{\headrulewidth}{0.4pt}
+  \renewcommand{\footrulewidth}{0.4pt}}
+% Page style used on chapter starts by default but with the bottom edited to draw a line before the page number.
+\fancypagestyle{plain}{%
+  \fancyhf{}
+  \fancyfoot[L]{}
+  \fancyfoot[C]{\thepage}
+  \fancyfoot[R]{}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0.4pt}}
+\pagestyle{normal}
+
+% Adding support for appendix
+\usepackage[toc,page]{appendix}
+
+\bibliography{odes.bib}
+
+\author{ID Number: 7635417}
+\date{}
+\title{Scientific Computing Project 1: ODE solver}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\chapter*{Introduction}
+
+\input{intro.tex}
+
+\chapter{Methods for Solving Ordinary Differential Equations}
+
+An Ordinary Differential Equation is an equation for a function of one variable $f(x)$ relating combinations various derivatives together. That is, in general an ODE will have the form \cite{odes}:
+
+\begin{equation} \label{gen-ode} 
+	G\left(x,f(x),f'(x), \cdots, f^{(n)}(x)\right) = 0
+\end{equation}
+where $G$ is some function, a prime denotes differentiation with respect to $x$ and $f^{(n)}(x)$ is the $n$-th derivative of $f$ with respect to $x$. In this project we will concern ourselves primarily with second order equations.
+For the sake of clarity we will write these in Leibniz's notation and call the function $f$ as $y(x)$
+\begin{equation} \label{ode-2nd}
+	\frac{d^2 y}{dx^2} + p_1 (x,y) \frac{dy}{dx} + p_2 (x,y) y = 0
+\end{equation}
+where $p_1$ and $p_2$ are arbitrary functions.
+
+In general an $n$-th order equation will require $n$ constants to fix the solution \cite{odes}. This is related to how information is lost when we differentiate functions, namely any constant terms are always mapped to zero.
+
+Another important point to note is that an $n$-th order equation can always be rewritten as a system of $n$ coupled first order equations. To see this, set $z_1 = y$ and $z_2 = y'$ and then note that $z_1' = z_2$ and $z_2' = y''$. Rearrange \ref{ode-2nd} to isolate the second derivative:
+\begin{equation} \label{system-example}
+	\frac{d^2 y}{dx^2} = - p_1 (x,y) \frac{dy}{dx} - p_2 (x,y) y
+\end{equation}
+and now substituting for $z_1$ and $z_2$
+\begin{equation} \label{system}
+	\begin{aligned}
+		\frac{d z_1}{dx} &= z_2 \\
+		\frac{d z_2}{dx} &= -p_1 (x,z_1) z_2 - p_2(x,z_1) z_1 \, .
+	\end{aligned}
+\end{equation}
+This method works for any order ODE, however we will only need the result for second order equations. 
+
+Finally, we show how it is possible to write higher order ODEs in vector form for later ease of computation. If we consider a vector of the variables $z_1, z_2, \ldots, z_n$ to be $\vec{z} = (z_1, z_2, \ldots, z_n)^{T}$ then we can write the functions which the system of ODEs is equal to as $$\vec{F} = (f_1(x, \vec{z}), f_2(x, \vec{z}), \ldots, f_n(x, \vec{z}))^{T}$$ and the ODE can be rewritten once again to:
+\begin{equation} \label{ode-vectored}
+	\frac{d \vec{z}}{dx} = \vec{F}(x, \vec{z}) .
+\end{equation}
+This is the form we will be using in the code.
+
+\section{Initial Value Problems}
+
+Initial value problems are ODEs where the problem is subject to initial conditions at the start of the range of values we are interested in solving for. For example, a second order ODE on an interval $a \leq x \leq b$. We give the initial data as $y(x=a) = \alpha$ and $y'(x=a) = \beta$. Since the problem is only constrained at one end, we simply have to step though the interval to find values for $y(x)$ and $y'(x)$. We will use three methods to do this, Euler's method, the Midpoint method and a 4$^{\text{th}}$ order Runge-Kutta method.
+
+\subsection{Euler's Method}
+
+The simplest method of solving an IVP is Euler's method. We start by breaking the interval into $n$ equal steps to iterate over. That is $x$ ranges from $a$ to $b$ as
+\begin{equation} \label{mesh}
+	x_i = a + \sum_{i=0}^{n} ih
+\end{equation}
+where $h = (b-a)/n$. $h$ here is called the step size, and will be common to all methods we use. If we now consider the Taylor expansion of $y(x)$ in the interval in question (assuming that $y(x)$ has a sufficient number of derivatives) then for each $x_i$ in the interval we can write the Taylor series of the next $x$ step, $x_{i+1}$ as \cite{burden}
+\begin{equation}
+	y(x_{i+1}) = y(x_i) + (x_{i+1} - x_i) y'(x_i) + O((x_{i+1} - x_i)^2) .
+\end{equation}
+
+For sufficiently small step size, we can ignore all terms of order 2 or above. If we now note that $x_{i+1} - x_i = h$ then we can write Euler's method as
+
+\begin{equation}\label{euler}
+	\begin{aligned}
+		y_{0} &= \alpha \\
+		y_{i+1} &= y_i + h f(x_i, y_i),  \quad \text{for} \,\, i = 0, 1, \ldots, n-1
+	\end{aligned}
+\end{equation}
+
+We can now write this as an algorithm for later use with programming:
+
+\begin{algorithm}
+\caption{Euler's Method}\label{euler-alg}
+\begin{algorithmic}[1]
+	\Procedure{Euler}{$a,b,n,\alpha$}\Comment{Solve IVP in $[a,b]$ with $n$ steps and initial condition $\alpha$}
+	\State $h \gets (b-a)/n$
+	\State $x \gets a$ \Comment{$x$ starts at $a$}
+	\State $y \gets \alpha$ \Comment{$y(x=a) = \alpha$}
+	\For{$i = 1,2,\ldots,n$}
+		\State $y \gets y + h f(x,y)$ \Comment{Compute the next approximation to $y$}
+		\State $x \gets a + ih$ \Comment{Step $x$ along on the mesh}
+	\EndFor
+	\State \textbf{return} $y(x=b)$ \Comment{Return the end value}
+	\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Midpoint Method}
+
+The midpoint method is a slight improvement on Euler's method. While we will not derive the method here, the reasoning is similar to that used to get the Euler method, only with a more careful analysis of the Taylor series is used.
+
+Once again, we use the mesh as defined in \ref{mesh}. We give the method as \cite{burden}
+
+\begin{equation}\label{midpoint}
+	\begin{aligned}
+		y_{0} &= \alpha \\
+		y_{i+1} &= y_i + h f\left(x_i + \frac{h}{2}, \, y_i + \frac{h}{2} f(x_i, y_i)\right),  \quad \text{for} \,\, i = 0, 1, \ldots, n-1
+	\end{aligned}
+\end{equation}
+
+or as an algorithm:
+
+\begin{algorithm}
+\caption{Midpoint Method}\label{midpoint-alg}
+\begin{algorithmic}[1]
+	\Procedure{midpoint}{$a,b,n,\alpha$}\Comment{Solve IVP in $[a,b]$ with $n$ steps and initial condition $\alpha$}
+	\State $h \gets (b-a)/n$
+	\State $x \gets a$ \Comment{$x$ starts at $a$}
+	\State $y \gets \alpha$ \Comment{$y(x=a) = \alpha$}
+	\For{$i = 1,2,\ldots,n$}
+		\State $y \gets y + h f\left(x + \frac{h}{2}, \,y + \frac{h}{2} f(x,y) \right)$ \Comment{Compute the next approximation to $y$}
+		\State $x \gets a + ih$ \Comment{Step $x$ along on the mesh}
+	\EndFor
+	\State \textbf{return} $y(x=b)$ \Comment{Return the end value}
+	\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+As a general rule, the midpoint method will be more accurate than the Euler method, at the expense of requiring a greater amount of computational resources to compute. 
+
+\subsection{Runge-Kutta Method}
+
+Runge-Kutta methods are of a different class to the midpoint and Euler methods, with a different derivation. We will not concern ourselves with this here, but such can be found in \cite{burden,griffiths2010numerical}. We will simply state the Runge-Kutta method of order 4.
+\begin{alignat}{4} \label{runge-def}
+	y_{0} &= \alpha, &\quad k_1 &= h f(x_i, y_i), \nonumber \\ 
+	k_2 &= h f\left(x_i + \frac{h}{2}, \, y_i + \frac{1}{2} k_1\right), &\quad k_3 &= h f\left(x_i + \frac{h}{2}, \, y_i + \frac{1}{2} k_2 \right), \\
+	k_4 &= h f(x_i + h, y_i + k_3), &\quad y_{i+1} &= y_i + \frac{1}{6} \left(k_1 + 2k_2 + 2k_3 + k_4\right) \nonumber
+\end{alignat}
+with $k_1, k_2, k_3, k_4$ being intermediate quantities used to write the final $y$. The Runge-Kutta method is a great deal more exact than the Euler method for each step (having a truncation error of order $h^4$ \cite{burden}) however requires a much greater amount of computational resources to compute. Once again, we write it as an algorithm for later use.
+
+\begin{algorithm}
+\caption{Runge-Kutta Method}\label{midpoint-runge}
+\begin{algorithmic}[1]
+	\Procedure{runge}{$a,b,n,\alpha$}\Comment{Solve IVP in $[a,b]$ with $n$ steps and initial condition $\alpha$}
+	\State $h \gets (b-a)/n$
+	\State $x \gets a$ \Comment{$x$ starts at $a$}
+	\State $y \gets \alpha$ \Comment{$y(x=a) = \alpha$}
+	\For{$i = 1,2,\ldots,n$}
+		\State $k_1 \gets h f(x,y)$
+		\State $k_2 \gets h f\left(x + \frac{h}{2}, \, y + \frac{1}{2} k_1\right)$
+		\State $k_3 \gets h f\left(x + \frac{h}{2}, \, y + \frac{1}{2} k_2 \right)$
+		\State $k_4 \gets h f(x + h, y + k_3)$
+		\State $y \gets y + \frac{1}{6}\left(k_1 + 2k_2 + 2k_3 + k_4\right)$ \Comment{Compute the next approximation to $y$}
+		\State $x \gets a + ih$ \Comment{Step $x$ along on the mesh}
+	\EndFor
+	\State \textbf{return} $y(x=b)$ \Comment{Return the end value}
+	\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\section{Boundary Value Problems}
+
+We now have three methods for solving IVP problems. Thus, we now can turn our attention to another class of ODEs, boundary value problems. In a boundary value problem, we have an ODE for which the initial data is specified at either end of the the range. That is, in an interval $a\leq x \leq b$ we know that $y(x=a) = \alpha$ and $y(x=b) = \beta$. Problems of this type must be of order 2 or above, as otherwise it does not make sense for the initial data to be specified in more than one place.
+
+This leads us to ask how we can possible solve such equations in terms of the IVP solving methods we have previously defined. In order to do this we require the Newton shooting method.
+
+\subsection{Newton Shooting}
+
+The Newton shooting method of solving a BVP change the problem from a BVP to an IVP as we require. The way this works is that we rewrite the second order equation in terms of a couple set of first order equations, as shown in \ref{system} and \ref{ode-vectored}. We need to assign a value to the second term of the system of equations. Start by writing the initial conditions in terms of a guess to what the correct version should be. If we call the function $\vec{Y}$ in vector form then the initial conditions will be the vector at the start of the interval. That is
+\begin{equation} \label{shooting 1}
+	\vec{Y}(x=a) = \begin{pmatrix} Y_{1} (a) \\ Y_2 (a) \end{pmatrix} = \begin{pmatrix} \alpha \\ g \end{pmatrix} .
+\end{equation}
+
+If we now use one of the IVP solvers we have detailed above, we can solve the IVP defined by the BVP transformed into coupled ODEs and with initial data given as in \ref{shooting 1}. This will give us the values at the end of interval:
+
+\begin{equation} \label{shooting 2}
+	\vec{Y}(x=b) = \begin{pmatrix} Y_{1} (b) \\ Y_2 (b) \end{pmatrix} = \begin{pmatrix} \beta_1 \\ \beta_2 \end{pmatrix}
+\end{equation}
+
+We can now compare our value for for $\beta_1$ to the other boundary value which we were given in the problem. If we define a function $\phi(g)$ as
+
+\begin{equation} \label{phi}
+	\phi(g) = \underbrace{Y_1 (x=b;g)}_{\text{IVP version of} \, Y_1 \, \text{for guess} \, g .} - \underbrace{Y_1 (x=b)}_{\text{Known value at boundary}} = \beta_1 - Y_1 (x = b)
+\end{equation}
+then the original BVP will be solved when $\phi(g) = 0$ thus transforming the problem into finding a $g$ such that this is the case.
+
+We will use Newton's iteration to find such a root. Under this scheme we will choose the next guess to be
+\begin{equation} \label{newton-guess}
+	g_{n+1} = g_n - \frac{\phi(g)}{\phi'(g)}
+\end{equation}
+
+where we can obtain $\phi'(x)$ from differentiating $Y_1$ with respect to $g$ and evaluating this at the end of the interval:
+\begin{equation}
+	\frac{d \phi}{dg} = \left. \frac{d Y_1}{dg} \right|_{x = b}
+\end{equation}
+
+Since Newton's iteration has quadratic convergence we should very quickly find the correct value of $g$, allowing us to solve the BVP we are working with.
+
+\chapter{Implementation}
+
+In order to keep the implementation of the problems fairly general, we will attempt to design a program which makes use of classes and inheritance. We will implement three of the problems given in the problem booklet.
+
+\subsection*{Initial Value Problem}
+
+The first problem given in the source is an initial value problem with:
+\begin{equation} \label{ivp-1}
+	\frac{d^2 y}{dx^2} = \frac{1}{8} \left(32 + 2x^3 - y \frac{dy}{dx} \right)
+\end{equation}
+and with initial data $y(x=1)=17$ and $y'(x=1)=1$. We rewrite this as a system of first order equations as follows:
+\begin{equation}\label{ivp-1-split}
+	\begin{aligned}
+		\frac{d z_1}{dx} &= z_2 \\
+		\frac{d z_2}{dx} &= \frac{1}{8} \left(32 + 2x^3 - z_1 z_2 \right)
+	\end{aligned}
+\end{equation}
+
+This is implemented as \mintinline{c++}|class ivp| in the code, which we will describe soon.
+
+\subsection*{Boundary Value Problem 1}
+
+The second problem which is implemented is a boundary value problem of the form:
+\begin{equation} \label{bvp-1}
+	\frac{d^2y}{dx^2} + k \frac{dy}{dx} + xy = 0
+\end{equation}
+with data on the boundary given by $y(x=0) = 0$ and $y(x=1) = 1$ and $k$ some number, taken to be of type \mintinline{c++}|double|. We split this into a system of equations like so:
+\begin{equation} \label{bvp-1-split}
+	\begin{aligned}
+		\frac{d z_1}{dx} &= z_2 \\
+		\frac{d z_2}{dx} &= -k z_2 - x z_1
+	\end{aligned}
+\end{equation}
+
+This problem is implemented as \mintinline{c++}|class bvp1|.
+
+\subsection*{Boundary Value Problem 2}
+
+Finally, we implement another boundary value problem, defined by \ref{ivp-1} and \ref{ivp-1-split} but with conditions $y(x=1) = 17$ and $y(x=3) = 43/3$. This is implemented as \mintinline{c++}|class bvp2|.
+
+\section{Background classes}
+
+The first important classes in the implementation are MVector and MFunction. These allow us to mimic the Algorithmic definitions of the IVP solvers given above more closely, by overloading various operators in order to make their behavior more like traditional mathematical definitions, instead of C++ versions. We start first with the MVector class.
+
+\subsection{MVector}
+
+MVector is a class to take standard C++ vectors and change their behavior to be more suitable for the tasks we have in mind for them. In MVector.hpp we first declare a vector of \mintinline{c++}|double| type of indeterminate size for us to use. There are then three possible constructors for the MVector class. One to allow us to create an MVector without declaring the size, one to allow us to create an MVector of size $n$, and one to allow us to create an MVector of size $n$ containing a \mintinline{c++}|double| $x$ in all of the $n$ positions in the vector.
+\begin{listing}[H]
+\begin{minted}[linenos=true, frame=lines]{c++}
+class MVector{
+	vector<double> v;
+}
+public:
+	explicit MVector(){}
+	explicit MVector(int n):v(n){}
+	explicit MVector(int n, double x):v(n,x){}
+\end{minted}
+\caption{Start of MVector.hpp}
+\end{listing}
+The \mintinline{c++}|explicit| keyword stops the compiler from implicitly converting types to facilitate operations. In this case, this is useful as we can be sure that we are not accidentally adding objects which it does not make mathematical sense to add, for example.
+
+We now can over load operators to have them behave with MVectors as we expect them to. First in MVector.hpp we write the function definitions we require MVector to have. Then in MVector.cpp we define these operations.
+
+\begin{listing}
+\begin{minted}[linenos=true, frame=lines,firstnumber=last]{c++}
+	MVector& operator=(const MVector& X);
+	double& operator[](int index);
+	double operator[](int index) const;
+	int size() const;
+	vector<double> getVector();
+	void push_back(double x);
+};
+\end{minted}
+\caption{Operator overloading in MVector.hpp}
+\end{listing}
+
+For example in MVector.cpp we can define the assignment operator for MVectors, allowing us to copy the contents of one MVector into another.
+
+\begin{listing}
+\begin{minted}[linenos=true, frame=lines]{c++}
+MVector &MVector::operator=(const MVector& X) {
+	if(&X==this) return *this;
+		v = X.v;
+		return *this;
+}
+\end{minted}
+\caption{Overloading the assignment operator to allow assigning one MVector the contents of another}
+\end{listing}
+
+\pagebreak
+
+This works by simply returning the original MVector if it is set equal to itself. Otherwise, the MVector X is copied over the MVector we are assigning to. The \mintinline{c++}|const| keyword here means that while we are passing a reference to the assigning MVector X so as to allow us to access the underlying vector class, we are not allowed to make changes to the MVector.
+
+We also overload operators such as + and - to allow us to add and subtract MVectors and * and / to allow us to divide MVectors component wise by doubles. For example, when we overload the + operator, as can be seen in Listing \ref{lst:plusover}, we walk component wise through the MVector on the left hand side of the sum and add the value at the corresponding index in the MVector on the right hand side. Note that also, this equality will work for MVectors of different sizes, however a warning is produced when addition or subtraction of two vectors of different sizes is occurring, to warn the user that they may receive unexpected results from this operation.
+
+\begin{listing}
+\begin{minted}[linenos=true, frame=lines,firstnumber=71]{c++}
+MVector operator+(const MVector& lhs, const MVector& rhs) {
+	// Overload + operator to add MVectors
+	if (lhs.size() == rhs.size()){ // Give a warning if the vectors are of difference size,
+		MVector temp(lhs); // to state that the operation might not give the expected result.
+		for(int i=0; i<temp.size(); i++) {
+			temp[i] += rhs[i];
+		}
+		return temp;
+	}
+	else {
+		cout << "Warning: The vectors are of different sizes! This could be very bad." << endl;
+		MVector temp(lhs);
+		for(int i=0; i<temp.size(); i++) {
+			temp[i] += rhs[i];
+		}
+		return temp;
+	}
+}
+\end{minted}
+\caption{Overloading the + operator for MVectors}
+\label{lst:plusover}
+\end{listing}
+
+\subsection{MFunction}
+
+The MFunction class is a class which we can only inherit from, and all inheriting classes must implement the () operator for. This is the function type we will use to implement our ODEs with when written into vector form. The most important part of this class definition is
+\mint{c++}|virtual MVector operator()(const double& x, const MVector& y) = 0;|
+
+The =0 operation at the end of the function definition means that this is a pure virtual function, and all inheriting classes must provide an implementation for it. Additionally, we cannot create an instance of this class, only provided other classes which inherit from it.
+
+\subsection{IVP solvers}
+
+The IVP solvers are implemented as their own class ivp\_solvers, with the three solvers being public functions within each class. The constructor for this class takes as an input an \mintinline{c++}|int step| for the step size, and two \mintinline{c++}|double|s for the interval we are solving in. The three IVP solving methods given in the first chapter are then implemented as functions which the class provides, taking input of an MVector $y$ containing at first the initial data and after running the class the solution, an MFunction $f$ implementing the ODE we are aiming to solve and an \mintinline{c++}|int| $j$ to act as control for optionally outputting values to file. As an example, for a midpoint solver we will have the following in solver.hpp:
+\mint{c++}|MVector midpoint(MVector &y, MFunction &f, int j);|
+and the implementation, as per Algorithm \ref{midpoint-alg}, is given in Listing \ref{midpoint-code}. Here, if the \mintinline{c++}|int j| is set to one then we write values of $x$, $y$ and $y'$ into a file as we solve the IVP on the mesh.
+\begin{listing}
+\begin{minted}[linenos=true, frame=lines, firstnumber=33]{c++}
+MVector ivp_solvers::midpoint(MVector &y, MFunction &f, int j){
+	int i;
+	double x, h;
+	h = (b-a)/steps;
+	x = a;
+	y = y;
+	if (j == 1){ //printing
+		ofstream output("output_midpoint.csv");
+		output << x << "," << y[0] << "," << y[1] << endl;
+		for(i = 1; i < steps+1; i++){
+			x = a + i*h;
+			y = y + h*f(x + 0.5*h, y + 0.5*h*f(x,y));
+			output << x << "," << y[0] << "," << y[1] << endl;
+		}
+		output.close();
+	}
+	else { // not printing
+		for(i = 1; i < steps+1; i++){
+			x = a + i*h;
+			y = y + h*f(x + 0.5*h, y + 0.5*h*f(x,y));
+		}
+	}
+	// cout << y << endl; // optional print
+	return y;
+}
+\end{minted}
+\caption{Implementation of the midpoint IVP solver}
+\label{midpoint-code}
+\end{listing}
+
+\subsection{ODE container}
+
+The ODEs are contained in a class which inherits from MFunction. There are, as mentioned before \mintinline{c++}|class ivp|, \mintinline{c++}|class bvp1| and \mintinline{c++}|class bvp2|. For the BVP problems, the first two components of the vector contain the ODE we are aiming to solve. The second two contain the function differentiated with respect to the guess $g$. As an example, for the second boundary value problem
+
+\begin{equation} \label{bvp2-whatever}
+	\frac{d^2 y}{dx^2} = \frac{1}{8} \left( 32 + 2 x^3 - y \frac{dy}{dx} \right) = F(x,y,y')
+\end{equation}
+
+Now we can differentiate $y''$ with respect to $g$ as suggested in the problem booklet to get
+
+\begin{equation} \label{bvp2-g-diff}
+	\begin{aligned}
+		\frac{d y''}{dg} &= \frac{\partial F}{\partial x} \frac{dx}{dg} + \frac{\partial F}{\partial y} \frac{dy}{dg} + \frac{\partial F}{\partial y'} \frac{d y'}{dg} \\
+		&= 0 - \frac{1}{8} \left(y' \frac{dy}{dg} + y \frac{dy'}{dg} \right) .
+	\end{aligned}
+\end{equation}
+
+If we now let $z_1 = \frac{dy}{dg}$ and $z_2 = \frac{dy'}{dg}$ then we can write
+\begin{equation} \label{bvp2-g-sys}
+	\begin{aligned}
+	\frac{dz_1}{dx} &= z_2 \\
+	\frac{dz_2}{dx} &= - \frac{1}{8} \left(y' z_1 + y z_2\right)
+	\end{aligned}
+\end{equation}
+with initial conditions
+
+\begin{equation} \label{bvp2-g-init}
+	\begin{aligned}
+	z_1 (x = 1) &= 17 \\
+	z_2 (x = 1) &= \frac{43}{3} .
+	\end{aligned}
+\end{equation}
+
+This now allows us to write the system given in Listing \ref{bvp2-code-def}, which we use as the definition of the function for this problem.
+
+\begin{listing}
+\begin{minted}[linenos=true,frame=lines,firstnumber=25]{c++}
+MVector bvp2::operator()(const double& x, const MVector& y){
+	MVector temp(4);
+	temp[0] = y[1];
+	temp[1] = 4 + (1./4.)*x*x*x - (1./8.)*y[0]*y[1];
+	temp[2] = y[3];
+	temp[3] = (-1./8.)*(y[1]*y[2] + y[0]*y[3]); // This is given by dy''/dg
+	return temp;
+}
+\end{minted}
+\caption{The definition of the () for \mintinline{c++}|class bvp2|}
+\label{bvp2-code-def}
+\end{listing}
+
+\subsection{Newton Shooting}
+
+The shooting function is implemented as a function in main.cpp, defined as given in \ref{newton-guess}. This gives us our new guess for $g$ before running one of the IVP solvers on the problem again.
+
+\subsection{BVP solving}
+
+With all of this in place, we can solve a BVP given the initial conditions. An example for \mintinline{c++}|class bvp1| see Listing \ref{bvp1-solv-code}. Here we run the shooting method for up to 500 times, either until we reach a tolerance for the value of $\phi$ or we run out of steps. j is the control int for deciding if we write the output of the final set of IVP iteration to file.
+
+\begin{listing}
+\begin{minted}[linenos=true,frame=lines,firstnumber=58]{c++}
+for (n = 0; n < 500; n++){
+	y[0] = 0.; y[1] = guess; y[2] = 0.; y[3] = 1.;
+	solv.euler(y, f, j);
+	temp = shooting(guess, y, d);
+	guess = temp[0];
+	if (abs(temp[1])<tol){ // finish the loop when sufficiently close
+		break;
+}
+\end{minted}
+\caption{Code for solving bvp1}
+\label{bvp1-solv-code}
+\end{listing}
+
+\subsection{Main}
+
+The main file presents a command line argument structure for selecting the problem you wish to solve, which method you wish to use, how many iteration steps you would like to use, and whether you would like to print the results of solving the problem to a file.
+
+This is achieved by reading the number of command line arguments into \mintinline{c++}|argc| and the characters passed on the command line into an array of characters given by \mintinline{c++}|argv[]|. This gives the start of main as
+
+\begin{listing}
+\begin{minted}[linenos=true,frame=lines]{c++}
+int main(int argc, char* argv[]){
+// Initialising variables here
+if (argc < 4){
+	std::cout << "Usage: ode [-b1/-b2/-i] [method] [steps] -f" << std::endl;
+	return 0; // the minimum number of arguments is 3
+}
+\end{minted}
+\caption{First part of \mintinline{c++}|int main|}
+\end{listing}
+
+If the number of command line arguments which are passed to the program are lower than the number of required arguments, at least enough to define the problem, the solving method and the number of steps, then the program outputs a message giving details of its usage.
+
+We then use the arguments that have been passed on the command line to select which problem we wish to solve. For example, if we wish to solve the first boundary value problem, using the Euler method, with 1000 steps in the IVP solving stage, we would call the command ode with the following arguments:
+\begin{verbatim} ode -b1 euler 1000 \end{verbatim}
+which will trigger the following conditions in the source.
+\mint{c++}|if (argc > 3){|
+and
+\mint{c++}|if (flag1.compare("-b1") == 0){|
+and
+\mint{c++}|if (method.compare("euler") == 0){|
+
+Finally, the number of steps is read into an int using
+\mint{c++}|	steps = std::stoi(argv[3]);|
+
+This then initializes a new instance of the bvp we wish to solve as f, and a new instance of the ivp solver class to use to solve with.
+\begin{minted}[frame=lines]{c++}
+bvp1 f;
+ivp_solvers solv (steps, 0, 1);
+\end{minted}
+
+After this, the code shown in Listing \ref{bvp1-solv-code} is ran to solve the BVP. Also, as an added safety consideration, if after 500 iterations of the newton shooting method we have still not converged onto a root, the following displays a warning for the user that the answers are almost certainly not correct.
+
+\begin{listing}
+\begin{minted}[frame=lines]{c++}
+if(abs(temp[1])>1.){ // deal with being unable to find the root
+	cout << "A root was not found during the shooting method. Something is probably wrong.";
+}
+\end{minted}
+\caption{A condition to deal with the shooting method being unable to find a root}
+\end{listing}
+
+This now allows us to solve the IVPs and BVPs given in the problem booklet.
+
+\section{Building}
+
+Building of the program is controlled using a GNU Make file. We build a series of object files, MVector.o, odes.o, solvers.o and main.o and then link them together to give the final binary ode. The makefile is given by (with some options for cleaning left out) the code in Listing \ref{makefile}. The -O2 flag sets tells the compiler to optimize the code in an attempt to get some increase in speed of execution, and -std=c++11 enables some C++11 features.
+
+\begin{listing}[H]
+\begin{minted}[linenos=true,frame=lines]{makefile}
+CXX=g++
+CXXFLAGS+=-O2 -std=c++11
+
+all: ode
+
+MVector.o:
+	$(CXX) $^ $(CXXFLAGS) MVector.cpp -c
+
+solvers.o:
+	$(CXX) $^ $(CXXFLAGS) solvers.cpp -c
+
+odes.o:
+	$(CXX) $^ $(CXXFLAGS) odes.cpp -c
+
+main.o:
+	$(CXX) $^ $(CXXFLAGS) main.cpp -c
+
+ode: MVector.o solvers.o odes.o main.o
+	$(CXX) $^ $(CXXFLAGS) -o $@
+\end{minted}
+\caption{Makefile for the project}
+\label{makefile}
+\end{listing}
+\vfill
+
+\chapter{Analysis and Conclusions}
+
+Now that we have the code given above, we need to get some handle on if it produces correct solutions for the problems we have attempted to solve. Since solving the BVPs requires solving IVPs in the course of the solution, I will focus primarily on showing that the code can correctly solve BVPs and assume that the IVP solving works as required.
+
+\section{BVP 1}
+
+The first initial value problem has an analytic solution for $k=1$, which can be found using computer algebra systems. While I will not show the solution here (it is rather ugly, involving Airy functions) I will show a plot of the function.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{ode-lin/testing_bvp.pdf}
+\caption{The analytic solution of bvp1}
+\end{figure}
+
+If we now solve this BVP using the code given, with options \begin{center} \begin{verbatim} ode -b1 runge-kutta 300 -f \end{verbatim} \end{center} we can produce another plot, with the points from the file plotted against the analytic solution of the BVP.
+
+\begin{landscape}
+
+\pagestyle{empty}
+\begin{figure}[H]
+\includegraphics[scale=0.55]{ode-lin/testing_bvp2.pdf}
+\caption{The analytic solution (in red) plotted against the points from the BVP solver in the code}
+\end{figure}
+
+\end{landscape}
+
+As we can see, this is incredibly close to the BVP we are solving, giving good evidence for the numerical methods being accurate.
+
+\section{BVP 2}
+
+The second BVP has a nicer closed form solution, given in the problem book: $y(x) = x^2 + \frac{16}{x}$ with $y'(x=1) = -14$. If we pick a different method this time, say the midpoint method, we can see how accurate the program is here. Running
+\begin{center}
+\begin{verbatim}
+ode -b2 midpoint 1000 -f
+\end{verbatim}
+\end{center}
+and then examining the output file shows that the method produces $y'(x=1) = -14.0077$, not a perfect result but certainly close. The value given for $y(x=3)$ is $14.3333$, in perfect agreement with the closed form solution. Increasing the number of steps decreases the error on the guess term for the derivative, and at 100000 steps we find an error of only $0.0001$ for the value of the first derivative, in very good agreement with the solution we expect.
+
+\section{Improvements}
+
+There are a number of potential improvements which could be made to the code to improve the clarity of the code and the re-usability.
+
+\begin{itemize}
+	\item Clarity: While the code has been designed in an object oriented fashion, this could be taken further in order to decrease the amount of code which is duplicated. For example, the two bvp solvers share very similar code to initialize the problem and solve it in main.cpp, which is an unnecessary duplication of similar code. This could be changed by having a single bvp class with different overloading of the () operator for each individual bvp, however this would involve large changes to the structure of the code.
+	\item Re-usability: Currently, in order to solve a different problem we need to change the code to include that problem and recompile before we can solve it. There are potentially ways to allow us to not have to do this to change the problem, for example introducing bindings to a interpreted language such as python, allowing us to change function definitions at run time. 
+\end{itemize}
+
+Additionally, a number of standard libraries could make portions of the code a lot cleaner, for example the ODEInt library in LibBoost \cite{odeint} implements many of the IVP solving techniques that have been implemented in this project, and a number of other techniques. Using this would be a good idea, as the validity of the source will have been verified to a greater extent than coding the solvers from the start.
+
+\section{Conclusion}
+
+The ode solver developed in this project is fairly accurate, and stand up well when testing against problems which we can be sure of the answer to. However, there are a number of improvements which could be made to the code, which would further increase the usefulness of the project. Overall however, the project works well and produces useful answers to problems which could be found in the sciences, engineering or mathematics.
+
+\begin{appendix}
+
+\chapter{Source code}
+
+\section{cpp files}
+
+\subsection{main.cpp}
+\input{main.cpp.tex}
+
+\subsection{odes.cpp}
+\input{odes.cpp.tex}
+
+\subsection{solvers.cpp}
+\input{solvers.cpp.tex}
+
+\subsection{MVector.cpp}
+\input{MVector.cpp.tex}
+
+\section{Header files}
+\subsection{odes.hpp}
+\input{odes.hpp.tex}
+
+\subsection{solvers.hpp}
+\input{solvers.hpp.tex}
+
+\subsection{MVector.hpp}
+\input{mvector.tex}
+
+\subsection{MFunction.hpp}
+\input{MFunction.tex}
+
+% \input{main.tex}
+% \input{makefile.tex}
+
+\end{appendix}
+
+\nocite{*}
+\printbibliography
+
+\end{document}

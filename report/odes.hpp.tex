@@ -1,0 +1,24 @@
+\begin{Verbatim}[tabsize=2,commandchars=\\\{\},numbers=left,firstnumber=1,stepnumber=1]
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{ifndef ODES\PYZus{}HPP\PYZus{}}
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{define ODES\PYZus{}HPP\PYZus{}}
+
+\PY{k}{class} \PY{n+nc}{ivp} \PY{o}{:} \PY{k}{public} \PY{n}{MFunction} \PY{p}{\PYZob{}} \PY{c+c1}{// an initial value problem class}
+	\PY{n}{MVector} \PY{k}{operator}\PY{p}{(}\PY{p}{)}\PY{p}{(}\PY{k}{const} \PY{k+kt}{double}\PY{o}{\PYZam{}} \PY{n}{x}\PY{p}{,} \PY{k}{const} \PY{n}{MVector}\PY{o}{\PYZam{}} \PY{n}{y}\PY{p}{)}\PY{p}{;}
+\PY{p}{\PYZcb{}}\PY{p}{;}
+
+\PY{k}{class} \PY{n+nc}{bvp1} \PY{o}{:} \PY{k}{public} \PY{n}{MFunction} \PY{p}{\PYZob{}} \PY{c+c1}{// a boundary value problem class}
+	\PY{k+kt}{double} \PY{n}{k}\PY{p}{;}
+\PY{n+nl}{public:} 
+	\PY{n}{bvp1}\PY{p}{(}\PY{p}{)}\PY{p}{\PYZob{}} \PY{c+c1}{// by default set k = 1 on initialising class}
+		\PY{n}{k} \PY{o}{=} \PY{l+m+mf}{1.}\PY{p}{;}
+	\PY{p}{\PYZcb{}}
+	\PY{n}{MVector} \PY{k}{operator}\PY{p}{(}\PY{p}{)}\PY{p}{(}\PY{k}{const} \PY{k+kt}{double}\PY{o}{\PYZam{}} \PY{n}{x}\PY{p}{,} \PY{k}{const} \PY{n}{MVector}\PY{o}{\PYZam{}} \PY{n}{y}\PY{p}{)}\PY{p}{;}
+	\PY{k+kt}{void} \PY{n+nf}{setk}\PY{p}{(}\PY{k+kt}{double} \PY{n}{j}\PY{p}{)}\PY{p}{;}
+\PY{p}{\PYZcb{}}\PY{p}{;}
+
+\PY{k}{class} \PY{n+nc}{bvp2} \PY{o}{:} \PY{k}{public} \PY{n}{MFunction} \PY{p}{\PYZob{}} \PY{c+c1}{// a boundary value problem class}
+	\PY{n}{MVector} \PY{k}{operator}\PY{p}{(}\PY{p}{)}\PY{p}{(}\PY{k}{const} \PY{k+kt}{double}\PY{o}{\PYZam{}} \PY{n}{x}\PY{p}{,} \PY{k}{const} \PY{n}{MVector}\PY{o}{\PYZam{}} \PY{n}{y}\PY{p}{)}\PY{p}{;}
+\PY{p}{\PYZcb{}}\PY{p}{;}
+
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{endif }\PY{c+cm}{/* ODES\PYZus{}HPP\PYZus{} */}
+\end{Verbatim}
