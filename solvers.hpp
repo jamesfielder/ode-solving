@@ -6,7 +6,7 @@
 #include <iostream>
 
 class ivp_solvers {
-	int steps,j; // variables all functions in the class need
+	int steps,j; // variables all functions in the class require
 	double a,b;
 	MVector out;
 	ofstream output;

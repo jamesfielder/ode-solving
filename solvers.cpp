@@ -4,7 +4,6 @@
 #include "MVector.hpp"
 #include "solvers.hpp"
 
-
 MVector ivp_solvers::euler(MVector &y, MFunction &f, int j){
 	int i;
 	double x, h;

@@ -2,7 +2,6 @@
 #include "MVector.hpp"
 #include "odes.hpp"
 
-
 MVector ivp::operator()(const double& x, const MVector& y){
 	MVector temp(2);
  	temp[0] = y[1];

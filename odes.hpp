@@ -8,7 +8,7 @@ class ivp : public MFunction { // an initial value problem class
 class bvp1 : public MFunction { // a boundary value problem class
 	double k;
 public: 
-	bvp1(){ // by default set k = 1 on initialising class
+	bvp1(){ // by default set k = 1. on initialising class
 		k = 1.;
 	}
 	MVector operator()(const double& x, const MVector& y);
