@@ -10,12 +10,6 @@ MVector &MVector::operator=(const MVector& X) {
 		return *this;
 	}
 
-// The following two operators allow to use commands such as a=v[i] or v[j]=b for
-// MVector objects v
-//double& operator[](int index){return v[index];}
-// access data in vector (const)
-//double operator[](int index) const {return v[index];}
-
 double& MVector::operator[](int index) {
 // Overload [] operator for writing
 	return v[index];

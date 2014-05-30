@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS+=-O2 -std=c++11 -static
+CXXFLAGS+=-O2 -std=c++11
 
 all: main
 

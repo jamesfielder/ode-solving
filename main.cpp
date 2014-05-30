@@ -162,6 +162,6 @@ int main(int argc, char* argv[]){
 	}
 	else{
 		return 1; // return 1 after unexpected input, as per unix rules
-	} // at least, I think it's a unix thing
+	} // at least, I think it's a unix thing.
 	return 1;
 }
